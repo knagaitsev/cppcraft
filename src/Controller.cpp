@@ -274,7 +274,7 @@ void Controller::handle_click(bool break_block) {
 		}
 		else {
 			block[direc] += (end[direc] > start[direc] ? -1 : 1);
-			chunkController->add_block(GRASS_BLOCK, block);
+			chunkController->add_block(LEAF_BLOCK, block);
 
 			vec3 player_center = camera->position;
 			player_center.z -= player_head_offset;

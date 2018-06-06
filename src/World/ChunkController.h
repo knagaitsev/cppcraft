@@ -31,9 +31,9 @@ private:
 public:
 	float flat_dist_camera(int x, int y);
 
-	const float render_distance = 50.0f;
+	const float render_distance = 100.0f;
 
-	const float load_distance = 60.0f;
+	const float load_distance = 110.0f;
 
 	const float cut_angle = 55.0f;
 
@@ -42,8 +42,10 @@ public:
 	int get_block(int x, int y, int z);
 	int get_block(glm::vec3 vec) { return get_block(floor(vec.x), floor(vec.y), floor(vec.z)); };
 
-	void add_block(int type, int x, int y, int z);
-	void add_block(int type, glm::vec3 vec) { add_block(type, floor(vec.x), floor(vec.y), floor(vec.z)); };
+	int add_block(int type, int x, int y, int z);
+	int add_block(int type, glm::vec3 vec) { return add_block(type, floor(vec.x), floor(vec.y), floor(vec.z)); };
+	int add_generated_block(int type, int x, int y, int z);
+	int add_generated_block(int type, glm::vec3 vec) { return add_generated_block(type, floor(vec.x), floor(vec.y), floor(vec.z)); };
 
 	void draw(Attrib *attrib);
 

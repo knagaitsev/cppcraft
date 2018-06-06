@@ -9,7 +9,9 @@ Chunk::Chunk(int x, int y, int z): x(x), y(y), z(z) {
 
 	std::fill(std::begin(neighbors), std::end(neighbors), nullptr);
 
-	bool has_changed = false;
+	has_changed = false;
+
+	freshly_generated = false;
 
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
@@ -30,6 +32,7 @@ bool Chunk::add_block(int type, int x, int y, int z) {
 	if (has_block(x, y, z)) {
 
 		if (blocks[x - this->x][y - this->y][z - this->z].type != type) {
+			set_freshly_generated(false);
 			has_changed = true;
 			Block b = { type };
 			blocks[x - this->x][y - this->y][z - this->z] = b;
@@ -175,4 +178,17 @@ int Chunk::reduce_to_fit(int num) {
 	}
 
 	return num;
+}
+
+void Chunk::set_freshly_generated(bool freshly_generated) {
+	if (freshly_generated != this->freshly_generated) {
+		this->freshly_generated = freshly_generated;
+		if (neighbors[4] != nullptr && neighbors[4]->freshly_generated != freshly_generated) {
+			neighbors[4]->set_freshly_generated(freshly_generated);
+		}
+
+		if (neighbors[5] != nullptr && neighbors[5]->freshly_generated != freshly_generated) {
+			neighbors[5]->set_freshly_generated(freshly_generated);
+		}
+	}
 }

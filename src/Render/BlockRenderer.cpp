@@ -45,21 +45,58 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 				if (block.type != AIR_BLOCK) {
 
 
-					bool fill_faces[6] = {
-						true,
-						true,
-						true,
-						true,
-						true,
-						true
-					};
+					bool fill_faces[6];
+					std::fill(std::begin(fill_faces), std::end(fill_faces), true);
+
+					bool neighbors_have_transparency[6];
+					std::fill(std::begin(neighbors_have_transparency), std::end(neighbors_have_transparency), false);
+
+					int coords[] = {x, y, z};
+
+					for (int i = 0; i < 6; i++) {
+
+						int originalCoord = coords[i / 2];
+
+						int edgeCoord = CHUNK_SIZE - 1;
+						int edgeNeighbor = 0;
+
+						if (i % 2 == 0) {
+							coords[i / 2] += 1;
+						}
+						else {
+							coords[i / 2] -= 1;
+
+							edgeCoord = 0;
+							edgeNeighbor = CHUNK_SIZE - 1;
+						}
+
+						int neighborType = AIR_BLOCK;
+						if (originalCoord == edgeCoord && neighbor_blocks[i] != nullptr) {
+							coords[i / 2] = edgeNeighbor;
+							neighborType = (*neighbor_blocks[i])[coords[0]][coords[1]][coords[2]].type;
+						}
+						else if (coords[i / 2] >= 0 && coords[i / 2] < CHUNK_SIZE) {
+							neighborType = (*blocks)[coords[0]][coords[1]][coords[2]].type;
+						}
+
+
+						if (neighborType != AIR_BLOCK && !BLOCK_FACES[neighborType][6]) {
+							fill_faces[i] = false;
+						}
+
+						if (!BLOCK_FACES[neighborType][6]) {
+							neighbors_have_transparency[i] = true;
+						}
+
+						coords[i / 2] = originalCoord;
+					}
 					
-					if ((x + 1 < CHUNK_SIZE && (*blocks)[x + 1][y][z].type != AIR_BLOCK) || (x + 1 == CHUNK_SIZE && neighbor_blocks[0] != nullptr && (*neighbor_blocks[0])[0][y][z].type != AIR_BLOCK)) {
-						fill_faces[1] = false;
+					/*if ((x + 1 < CHUNK_SIZE && (*blocks)[x + 1][y][z].type != AIR_BLOCK) || (x + 1 == CHUNK_SIZE && neighbor_blocks[0] != nullptr && (*neighbor_blocks[0])[0][y][z].type != AIR_BLOCK)) {
+						fill_faces[0] = false;
 					}
 
 					if ((x - 1 >= 0 && (*blocks)[x - 1][y][z].type != AIR_BLOCK) || (x == 0 && neighbor_blocks[1] != nullptr && (*neighbor_blocks[1])[CHUNK_SIZE - 1][y][z].type != AIR_BLOCK)) {
-						fill_faces[0] = false;
+						fill_faces[1] = false;
 					}
 
 					if ((y + 1 < CHUNK_SIZE && (*blocks)[x][y + 1][z].type != AIR_BLOCK) || (y + 1 == CHUNK_SIZE && neighbor_blocks[2] != nullptr && (*neighbor_blocks[2])[x][0][z].type != AIR_BLOCK)) {
@@ -78,10 +115,10 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 					//block below
 					if ((z - 1 >= 0 && (*blocks)[x][y][z - 1].type != AIR_BLOCK) || (z == 0 && neighbor_blocks[5] != nullptr && (*neighbor_blocks[5])[x][y][CHUNK_SIZE - 1].type != AIR_BLOCK)) {
 						fill_faces[5] = false;
-					}
+					}*/
 
 					int faces[6];
-					std::copy(std::begin(BLOCK_FACES[block.type]), std::end(BLOCK_FACES[block.type]), std::begin(faces));
+					std::copy_n(std::begin(BLOCK_FACES[block.type]), 6, std::begin(faces));
 
 					const int blocks_per_image = 8;
 
@@ -105,26 +142,26 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 						//x    y     z
 
 						//front-back
-						-0.5f,  -0.5f, 0.5f, tex[0], tex[2], // Top-left
-						-0.5f,  0.5f, 0.5f, tex[1], tex[2], // Top-right
-						-0.5f, 0.5f, -0.5f, tex[1], tex[3], // Bottom-right
-						-0.5f, -0.5f, -0.5f, tex[0], tex[3],  // Bottom-left
+						0.5f,  0.5f, 0.5f, tex[0], tex[2], // Top-right
+						0.5f,  -0.5f, 0.5f, tex[1], tex[2], // Top-left
+						0.5f, -0.5f, -0.5f, tex[1], tex[3],  // Bottom-left
+						0.5f, 0.5f, -0.5f, tex[0], tex[3], // Bottom-right
 
-						0.5f,  0.5f, 0.5f, tex[0 + 4], tex[2 + 4], // Top-right
-						0.5f,  -0.5f, 0.5f, tex[1 + 4], tex[2 + 4], // Top-left
-						0.5f, -0.5f, -0.5f, tex[1 + 4], tex[3 + 4],  // Bottom-left
-						0.5f, 0.5f, -0.5f, tex[0 + 4], tex[3 + 4], // Bottom-right
+						-0.5f,  -0.5f, 0.5f, tex[0 + 4], tex[2 + 4], // Top-left
+						-0.5f,  0.5f, 0.5f, tex[1 + 4], tex[2 + 4], // Top-right
+						-0.5f, 0.5f, -0.5f, tex[1 + 4], tex[3 + 4], // Bottom-right
+						-0.5f, -0.5f, -0.5f, tex[0 + 4], tex[3 + 4],  // Bottom-left
 
 						//left-right
-						-0.5f,  0.5f, 0.5f, tex[0 + 12], tex[2 + 12], // Top-right
-						0.5f,  0.5f, 0.5f, tex[1 + 12], tex[2 + 12], // Top-right
-						0.5f, 0.5f, -0.5f, tex[1 + 12], tex[3 + 12], // Bottom-right
-						-0.5f, 0.5f, -0.5f, tex[0 + 12], tex[3 + 12], // Bottom-right
+						-0.5f,  0.5f, 0.5f, tex[0 + 8], tex[2 + 8], // Top-right
+						0.5f,  0.5f, 0.5f, tex[1 + 8], tex[2 + 8], // Top-right
+						0.5f, 0.5f, -0.5f, tex[1 + 8], tex[3 + 8], // Bottom-right
+						-0.5f, 0.5f, -0.5f, tex[0 + 8], tex[3 + 8], // Bottom-right
 
-						0.5f,  -0.5f, 0.5f, tex[0 + 8], tex[2 + 8], // Top-left
-						-0.5f,  -0.5f, 0.5f, tex[1 + 8], tex[2 + 8], // Top-left
-						-0.5f, -0.5f, -0.5f, tex[1 + 8], tex[3 + 8],  // Bottom-left
-						0.5f, -0.5f, -0.5f, tex[0 + 8], tex[3 + 8],  // Bottom-left
+						0.5f,  -0.5f, 0.5f, tex[0 + 12], tex[2 + 12], // Top-left
+						-0.5f,  -0.5f, 0.5f, tex[1 + 12], tex[2 + 12], // Top-left
+						-0.5f, -0.5f, -0.5f, tex[1 + 12], tex[3 + 12],  // Bottom-left
+						0.5f, -0.5f, -0.5f, tex[0 + 12], tex[3 + 12],  // Bottom-left
 
 						//top-bottom
 						- 0.5f,  -0.5f, 0.5f, tex[0 + 16], tex[2 + 16], // Top-left
@@ -139,26 +176,8 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 					};
 
 					GLuint elementArray[] = {
-						//front-back
 						0, 1, 2,
-						2, 3, 0,
-
-						4, 5, 6,
-						6, 7, 4,
-
-						//left-right
-						4 + 8, 5 + 8, 6 + 8,
-						6 + 8, 7 + 8, 4 + 8,
-
-						0 + 8, 1 + 8, 2 + 8,
-						2 + 8, 3 + 8, 0 + 8,
-
-						//top-bottom
-						0 + 16, 1 + 16, 2 + 16,
-						2 + 16, 3 + 16, 0 + 16,
-
-						4 + 16, 5 + 16, 6 + 16,
-						6 + 16, 7 + 16, 4 + 16
+						2, 3, 0
 					};
 
 					for (int i = 0; i < NELEMS(verticesArray); i++) {
@@ -178,13 +197,37 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 						}
 					}
 
-					for (int i = 0; i < NELEMS(elementArray); i++) {
-						elementArray[i] += elemCount;
-						elements.push_back(elementArray[i]);
-					}
-
 					for (int i = 0; i < NELEMS(fill_faces); i++) {
 						if (fill_faces[i]) {
+							for (int reverse = 0; reverse < 2; reverse++) {
+								if (reverse == 1 && BLOCK_FACES[block.type][6] == 1) {
+									int temp = elementArray[0];
+									elementArray[0] = elementArray[1];
+									elementArray[1] = temp;
+									temp = elementArray[3];
+									elementArray[3] = elementArray[4];
+									elementArray[4] = temp;
+								}
+								else if (reverse != 0) {
+									continue;
+								}
+
+								for (int j = 0; j < NELEMS(elementArray); j++) {
+									elementArray[j] += elemCount;
+									elements.push_back(elementArray[j]);
+									elementArray[j] -= elemCount;
+								}
+
+								if (reverse == 1) {
+									int temp = elementArray[0];
+									elementArray[0] = elementArray[1];
+									elementArray[1] = temp;
+									temp = elementArray[3];
+									elementArray[3] = elementArray[4];
+									elementArray[4] = temp;
+								}
+							}
+
 							elemCount += 4;
 						}
 					}

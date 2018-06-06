@@ -52,11 +52,12 @@ int ChunkController::get_block(int x, int y, int z) {
 	return 0;
 }
 
-void ChunkController::add_block(int type, int x, int y, int z) {
+//returns the index of the chunk that the block was added to
+int ChunkController::add_block(int type, int x, int y, int z) {
 
 	for (int i = 0; i < chunks.size(); i++) {
 		if (chunks[i]->add_block(type, x, y, z)) {
-			return;
+			return i;
 		}
 	}
 
@@ -77,6 +78,14 @@ void ChunkController::add_block(int type, int x, int y, int z) {
 		chunks[chunks.size() - 1]->add_neighbor(chunks[i]);
 		chunks[i]->add_neighbor(chunks[chunks.size() - 1]);
 	}
+
+	return chunks.size() - 1;
+}
+
+int ChunkController::add_generated_block(int type, int x, int y, int z) {
+	int index = add_block(type, x, y, z);
+	chunks[index]->set_freshly_generated(true);
+	return index;
 }
 
 void ChunkController::gen_one_buffer() {
@@ -163,16 +172,18 @@ void ChunkController::save_data(std::string filename) {
 	if (file.is_open())
 	{
 		for (Chunk *chunk : chunks) {
-			glm::vec3 pos = chunk->position();
-			file << (int)(pos.x) << "," << (int)(pos.y) << "," << (int)(pos.z) << ",\n";
-			for (int i = 0; i < CHUNK_SIZE; i++) {
-				for (int j = 0; j < CHUNK_SIZE; j++) {
-					for (int k = 0; k < CHUNK_SIZE; k++) {
-						file << chunk->get_block(i, j, k).type << ",";
+			if (!chunk->get_freshly_generated()) {
+				glm::vec3 pos = chunk->position();
+				file << (int)(pos.x) << "," << (int)(pos.y) << "," << (int)(pos.z) << ",\n";
+				for (int i = 0; i < CHUNK_SIZE; i++) {
+					for (int j = 0; j < CHUNK_SIZE; j++) {
+						for (int k = 0; k < CHUNK_SIZE; k++) {
+							file << chunk->get_block(i, j, k).type << ",";
+						}
+						file << "\n";
 					}
-					file << "\n";
+					//file << "\n";
 				}
-				//file << "\n";
 			}
 		}
 		file.close();

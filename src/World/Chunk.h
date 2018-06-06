@@ -31,7 +31,12 @@ private:
 
 	int reduce_to_fit(int num);
 
+	bool freshly_generated;
+
 public:
+
+	void set_freshly_generated(bool freshly_generated);
+	bool get_freshly_generated() { return freshly_generated; };
 
 	Chunk(int x, int y, int z);
 	void gen_buffer();

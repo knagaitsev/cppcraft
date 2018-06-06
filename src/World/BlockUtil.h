@@ -17,13 +17,14 @@ typedef struct {
 #define DIRT_BLOCK 4
 #define STONE_BLOCK 5
 
-static int BLOCK_FACES[][6] = {
-	{ 0, 0, 0, 0, 0, 0 },
-	{ 8, 8, 8, 8, 0, 16 },
-	{ 4, 4, 4, 4, 12, 12 },
-	{ 20, 20, 20, 20, 20, 20 },
-	{ 16, 16, 16, 16, 16, 16 },
-	{ 1, 1, 1, 1, 1, 1 }
+static int BLOCK_FACES[][7] = {
+	//first 6 are face textures, next int is a boolean of whether or not this block has some transparency
+	{ 0, 0, 0, 0, 0, 0, 0 },
+	{ 8, 8, 8, 8, 0, 16, 0 },
+	{ 4, 4, 4, 4, 12, 12, 0 },
+	{ 20, 20, 20, 20, 20, 20, 1 },
+	{ 16, 16, 16, 16, 16, 16, 0 },
+	{ 1, 1, 1, 1, 1, 1, 0 }
 };
 
 #endif

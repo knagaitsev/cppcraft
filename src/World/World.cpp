@@ -62,12 +62,12 @@ void World::gen_new_chunks(int x, int y) {
 			double val = myModule.GetValue(i * changeFactor, j * changeFactor, .50);
 			//cout << val << endl;
 			int height = (int)(val * scale);
-			chunkController->add_block(GRASS_BLOCK, i, j, height);
+			chunkController->add_generated_block(GRASS_BLOCK, i, j, height);
 			for (int k = height - 1; k >= height - dirtCount; k--) {
-				chunkController->add_block(DIRT_BLOCK, i, j, k);
+				chunkController->add_generated_block(DIRT_BLOCK, i, j, k);
 			}
 			for (int k = height - dirtCount - 1; k >= height - dirtCount - stoneCount; k--) {
-				chunkController->add_block(STONE_BLOCK, i, j, k);
+				chunkController->add_generated_block(STONE_BLOCK, i, j, k);
 			}
 		}
 	}
