@@ -2,3 +2,4 @@
 build/
 CMakeBuilds/
 .vscode/
+asset/blocks.xcf
