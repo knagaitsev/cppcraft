@@ -51,14 +51,15 @@ int main() {
 	GLFWmonitor** monitors = glfwGetMonitors(&monitorCount);
 
 	int xpos = 50;
+	int ypos = 50;
 	if (monitorCount >= 2) {
 		//xpos = -1300;
 		xpos = 1800;
+		ypos = -150;
 	}
-	int ypos = -150;
 	int width = 1280;
 	int height = 720;
-	window = glfwCreateWindow(width, height, "Test 1", NULL, NULL);
+	window = glfwCreateWindow(width, height, "cppcraft - Loonride", NULL, NULL);
 	glfwSetWindowMonitor(window, NULL, xpos, ypos, width, height, 0);
 
 	if (window == NULL) {
