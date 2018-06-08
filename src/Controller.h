@@ -22,11 +22,16 @@ private:
 	Camera *camera;
 	ChunkController *chunkController;
 
+	bool cursor_disabled;
+
 	std::chrono::time_point<std::chrono::steady_clock> t_start;
 	const float speed = 10.0f;
 
 	const glm::vec3 player_dimensions = glm::vec3(.5f, .5f, 1.99f);
 	const float player_head_offset = 0.5f;
+
+	int building_block_type = GRASS_BLOCK;
+	const bool collisions_enabled = true;
 
 	glm::vec3 center;
 	glm::vec3 position;
@@ -43,6 +48,8 @@ private:
 
 	void on_mouse_button(GLFWwindow *window, int button, int action, int mods);
 	void handle_click(bool break_block);
+
+	void on_scroll(GLFWwindow* window, double xoffset, double yoffset);
 public:
 	Controller(GLFWwindow *window, Camera *camera, ChunkController *chunkController);
 	void update();

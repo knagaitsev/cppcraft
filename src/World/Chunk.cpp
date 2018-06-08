@@ -181,14 +181,5 @@ int Chunk::reduce_to_fit(int num) {
 }
 
 void Chunk::set_freshly_generated(bool freshly_generated) {
-	if (freshly_generated != this->freshly_generated) {
-		this->freshly_generated = freshly_generated;
-		if (neighbors[4] != nullptr && neighbors[4]->freshly_generated != freshly_generated) {
-			neighbors[4]->set_freshly_generated(freshly_generated);
-		}
-
-		if (neighbors[5] != nullptr && neighbors[5]->freshly_generated != freshly_generated) {
-			neighbors[5]->set_freshly_generated(freshly_generated);
-		}
-	}
+	this->freshly_generated = freshly_generated;
 }

@@ -17,14 +17,14 @@ World::World(ChunkController *chunkController, Camera *camera): chunkController(
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
 			for (int k = 0; k < size; k++) {
-				//chunkController->add_block(LOG_BLOCK, i, j, k);
+				//chunkController->add_block(GRASS_BLOCK, i, j, k);
 			}
 		}
 	}
 
 	//chunkController->add_block(GRASS_BLOCK, 0, 0, 0);
 
-	filename = "../../../data/test2.txt";
+	filename = "../../../data/world1.txt";
 
 	chunkController->load_data(filename);
 	chunkController->gen_changed_buffers();

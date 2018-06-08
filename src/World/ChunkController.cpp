@@ -34,7 +34,7 @@ void ChunkController::draw(Attrib *attrib) {
 		vec3 chunk_direc = chunk_pos - (camera->position - (20.0f * normalize(look_direc)));
 		chunk_direc.z = 0;
 
-		if (dist < render_distance && (camera->center.z < camera->position.z || (glm::angle(normalize(chunk_direc), normalize(look_direc))) <= radians(cut_angle / 2.0f))) {
+		if (dist < render_distance/* && (camera->center.z < camera->position.z || (glm::angle(normalize(chunk_direc), normalize(look_direc))) <= radians(cut_angle / 2.0f))*/) {
 			c->draw(attrib);
 		}
 	}
@@ -172,7 +172,19 @@ void ChunkController::save_data(std::string filename) {
 	if (file.is_open())
 	{
 		for (Chunk *chunk : chunks) {
+			for (int i = 0; i < chunks.size(); i++) {
+				if ((int)chunks[i]->position().x == (int)chunk->position().x && (int)chunks[i]->position().y == (int)chunk->position().y) {
+					if (!chunks[i]->get_freshly_generated() || !chunk->get_freshly_generated()) {
+						chunk->set_freshly_generated(false);
+						chunks[i]->set_freshly_generated(false);
+					}
+				}
+			}
+		}
+
+		for (Chunk *chunk : chunks) {
 			if (!chunk->get_freshly_generated()) {
+
 				glm::vec3 pos = chunk->position();
 				file << (int)(pos.x) << "," << (int)(pos.y) << "," << (int)(pos.z) << ",\n";
 				for (int i = 0; i < CHUNK_SIZE; i++) {

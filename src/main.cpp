@@ -55,9 +55,9 @@ int main() {
 		//xpos = -1300;
 		xpos = 1800;
 	}
-	int ypos = 50;
-	int width = 908;
-	int height = 512;
+	int ypos = -150;
+	int width = 1280;
+	int height = 720;
 	window = glfwCreateWindow(width, height, "Test 1", NULL, NULL);
 	glfwSetWindowMonitor(window, NULL, xpos, ypos, width, height, 0);
 
@@ -141,7 +141,7 @@ int main() {
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 
-	Camera camera(window, &attrib, 60.0f, 908.0f, 512.0f, .1f, 500.0f);
+	Camera camera(window, &attrib, 60.0f, 1280.0f, 720.0f, .1f, 700.0f);
 	ChunkController c(&camera);
 	Controller controller(window, &camera, &c);
 

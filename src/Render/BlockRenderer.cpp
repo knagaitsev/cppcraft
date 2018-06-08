@@ -84,7 +84,7 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 							fill_faces[i] = false;
 						}
 
-						if (!BLOCK_FACES[neighborType][6]) {
+						if (BLOCK_FACES[neighborType][6]) {
 							neighbors_have_transparency[i] = true;
 						}
 
@@ -200,7 +200,7 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 					for (int i = 0; i < NELEMS(fill_faces); i++) {
 						if (fill_faces[i]) {
 							for (int reverse = 0; reverse < 2; reverse++) {
-								if (reverse == 1 && BLOCK_FACES[block.type][6] == 1) {
+								if (reverse == 1 && BLOCK_FACES[block.type][6] == 1 && !neighbors_have_transparency[i]) {
 									int temp = elementArray[0];
 									elementArray[0] = elementArray[1];
 									elementArray[1] = temp;

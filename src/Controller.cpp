@@ -20,26 +20,36 @@ using namespace glm;
 using namespace std;
 
 Controller::Controller(GLFWwindow *window, Camera *camera, ChunkController *chunkController): window(window), camera(camera), chunkController(chunkController) {
+
 	t_start = std::chrono::high_resolution_clock::now();
 
 	glfwGetCursorPos(window, &mx, &my);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	cursor_disabled = true;
 
 	glfwSetWindowUserPointer(window, this);
 
-	auto func = [](GLFWwindow* window, int button, int action, int mods)
+	auto click_func = [](GLFWwindow* window, int button, int action, int mods)
 	{
 		static_cast<Controller*>(glfwGetWindowUserPointer(window))->on_mouse_button(window, button, action, mods);
 	};
 
-	glfwSetMouseButtonCallback(window, func);
+	glfwSetMouseButtonCallback(window, click_func);
+
+	auto scroll_func = [](GLFWwindow* window, double xoffset, double yoffset)
+	{
+		static_cast<Controller*>(glfwGetWindowUserPointer(window))->on_scroll(window, xoffset, yoffset);
+	};
+
+	glfwSetScrollCallback(window, scroll_func);
 }
 
 void Controller::update() {
 	//camera->position.z = -10.0f;
 
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+	if (cursor_disabled && glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		cursor_disabled = false;
 	}
 
 	auto t_now = std::chrono::high_resolution_clock::now();
@@ -101,11 +111,13 @@ void Controller::update() {
 		motionVec -= move;
 	}
 
-	vec3 hit_center = vec3(position.x, position.y, position.z - player_head_offset);
-	vec3 hit_dim = player_dimensions;
-	vec3 good_center = good_hitbox_center(hit_center, hit_dim, motionVec, center - position);
-	good_center.z += player_head_offset;
-	motionVec = good_center - position;
+	if (collisions_enabled) {
+		vec3 hit_center = vec3(position.x, position.y, position.z - player_head_offset);
+		vec3 hit_dim = player_dimensions;
+		vec3 good_center = good_hitbox_center(hit_center, hit_dim, motionVec, center - position);
+		good_center.z += player_head_offset;
+		motionVec = good_center - position;
+	}
 
 	position += motionVec;
 	center += motionVec;
@@ -228,6 +240,11 @@ void Controller::on_mouse_button(GLFWwindow *window, int button, int action, int
 	else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
 		handle_click(false);
 	}
+
+	if (!cursor_disabled) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		cursor_disabled = true;
+	}
 }
 
 void Controller::handle_click(bool break_block) {
@@ -274,16 +291,35 @@ void Controller::handle_click(bool break_block) {
 		}
 		else {
 			block[direc] += (end[direc] > start[direc] ? -1 : 1);
-			chunkController->add_block(LEAF_BLOCK, block);
+			chunkController->add_block(building_block_type, block);
 
 			vec3 player_center = camera->position;
 			player_center.z -= player_head_offset;
-			if (test_hitbox(player_center, player_dimensions)) {
+			if (!collisions_enabled || test_hitbox(player_center, player_dimensions)) {
 				chunkController->gen_changed_buffers();
 			}
 			else {
 				chunkController->add_block(AIR_BLOCK, block);
 			}
+		}
+	}
+}
+
+void Controller::on_scroll(GLFWwindow* window, double xoffset, double yoffset) {
+	if (yoffset > 0) {
+		if (building_block_type == 8) {
+			building_block_type = 1;
+		}
+		else {
+			building_block_type++;
+		}
+	}
+	else if (yoffset < 0) {
+		if (building_block_type == 1) {
+			building_block_type = 8;
+		}
+		else {
+			building_block_type--;
 		}
 	}
 }
