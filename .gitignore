@@ -2,4 +2,4 @@
 build/
 CMakeBuilds/
 .vscode/
-asset/blocks.xcf
+asset/gimp/blocks.xcf
