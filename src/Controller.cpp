@@ -19,7 +19,8 @@ using glm::vec3;
 using namespace glm;
 using namespace std;
 
-Controller::Controller(GLFWwindow *window, Camera *camera, ChunkController *chunkController): window(window), camera(camera), chunkController(chunkController) {
+Controller::Controller(GLFWwindow *window, Camera *camera, ChunkController *chunkController): window(window), camera(camera), chunkController(chunkController), inventory(window, camera) {
+
 
 	t_start = std::chrono::high_resolution_clock::now();
 
@@ -42,9 +43,16 @@ Controller::Controller(GLFWwindow *window, Camera *camera, ChunkController *chun
 	};
 
 	glfwSetScrollCallback(window, scroll_func);
+
+	auto key_func = [](GLFWwindow* window, int key, int scancode, int action, int mods)
+	{
+		static_cast<Controller*>(glfwGetWindowUserPointer(window))->on_key(window, key, scancode, action, mods);
+	};
+
+	glfwSetKeyCallback(window, key_func);
 }
 
-void Controller::update() {
+void Controller::update(Attrib *attrib) {
 	//camera->position.z = -10.0f;
 
 	if (cursor_disabled && glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -54,7 +62,7 @@ void Controller::update() {
 
 	auto t_now = std::chrono::high_resolution_clock::now();
 	//auto t_now = chrono::system_clock::now();
-	float dt = std::chrono::duration_cast<std::chrono::duration<float>>(t_now - t_start).count();
+	float dt = get_dt();
 	//float dt = std::chrono::duration_cast<std::chrono::duration<float>>(t_now - t_start).count();
 	t_start = t_now;
 	
@@ -127,6 +135,8 @@ void Controller::update() {
 	camera->position = position;
 	camera->center = center;
 	camera->up = up;
+
+	inventory.update(attrib);
 }
 
 void Controller::handle_mouse_input(double dt) {
@@ -182,7 +192,8 @@ bool Controller::test_hitbox(glm::vec3 center, glm::vec3 dimensions) {
 	for (int x = bounds[0]; x <= bounds[1]; x++) {
 		for (int y = bounds[2]; y <= bounds[3]; y++) {
 			for (int z = bounds[4]; z <= bounds[5]; z++) {
-				if (chunkController->get_block(x, y, z) != AIR_BLOCK) {
+				int blockType = chunkController->get_block(x, y, z);
+				if (blockType != AIR_BLOCK && blockType != WATER_BLOCK) {
 					return false;
 				}
 			}
@@ -248,6 +259,11 @@ void Controller::on_mouse_button(GLFWwindow *window, int button, int action, int
 }
 
 void Controller::handle_click(bool break_block) {
+
+	if (!break_block && inventory.building_block_type == AIR_BLOCK) {
+		return;
+	}
+
 	vec3 start = camera->position;
 	vec3 end = camera->center;
 	end = start + 6.0f * glm::normalize(end - start);
@@ -268,13 +284,15 @@ void Controller::handle_click(bool break_block) {
 			vec3 res = norm * scale;
 
 			vec3 pos = start + res;
-			if (step == 1 && chunkController->get_block(pos) != 0 && (bestScale == -1.0f || scale < bestScale)) {
+			int b = chunkController->get_block(pos);
+			if (step == 1 && b != AIR_BLOCK && b != WATER_BLOCK && (bestScale == -1.0f || scale < bestScale)) {
 				block = pos;
 				bestScale = scale;
 				direc = i;
 			}
 			pos[i] -= 1;
-			if (step == -1 && chunkController->get_block(pos) != 0 && (bestScale == -1.0f || scale < bestScale)) {
+			b = chunkController->get_block(pos);
+			if (step == -1 && b != AIR_BLOCK && b != WATER_BLOCK && (bestScale == -1.0f || scale < bestScale)) {
 				block = pos;
 				bestScale = scale;
 				direc = i;
@@ -290,8 +308,10 @@ void Controller::handle_click(bool break_block) {
 			chunkController->gen_changed_buffers();
 		}
 		else {
+
 			block[direc] += (end[direc] > start[direc] ? -1 : 1);
-			chunkController->add_block(building_block_type, block);
+			int old_type = chunkController->get_block(block);
+			chunkController->add_block(inventory.building_block_type, block);
 
 			vec3 player_center = camera->position;
 			player_center.z -= player_head_offset;
@@ -299,27 +319,21 @@ void Controller::handle_click(bool break_block) {
 				chunkController->gen_changed_buffers();
 			}
 			else {
-				chunkController->add_block(AIR_BLOCK, block);
+				chunkController->add_block(old_type, block);
 			}
 		}
 	}
 }
 
 void Controller::on_scroll(GLFWwindow* window, double xoffset, double yoffset) {
-	if (yoffset > 0) {
-		if (building_block_type == 8) {
-			building_block_type = 1;
-		}
-		else {
-			building_block_type++;
-		}
-	}
-	else if (yoffset < 0) {
-		if (building_block_type == 1) {
-			building_block_type = 8;
-		}
-		else {
-			building_block_type--;
-		}
-	}
+	inventory.on_scroll(window, xoffset, yoffset);
+}
+
+float Controller::get_dt() {
+	auto t_now = std::chrono::high_resolution_clock::now();
+	return std::chrono::duration_cast<std::chrono::duration<float>>(t_now - t_start).count();
+}
+
+void Controller::on_key(GLFWwindow* window, int key, int scancode, int action, int mods) {
+	inventory.on_key(window, key, scancode, action, mods);
 }

@@ -22,7 +22,9 @@ ChunkController::ChunkController(Camera *camera): camera(camera) {
 }
 
 void ChunkController::draw(Attrib *attrib) {
-	for (Chunk *c : chunks) {
+	std::vector<int> drawn_indices;
+	for (int i = 0; i < chunks.size(); i++) {
+		Chunk *c = chunks[i];
 		glm::vec3 chunk_pos = c->position();
 		float dist = flat_dist_camera(chunk_pos.x, chunk_pos.y);
 
@@ -35,11 +37,17 @@ void ChunkController::draw(Attrib *attrib) {
 		chunk_direc.z = 0;
 
 		if (dist < render_distance/* && (camera->center.z < camera->position.z || (glm::angle(normalize(chunk_direc), normalize(look_direc))) <= radians(cut_angle / 2.0f))*/) {
-			c->draw(attrib);
+			c->renderer.draw(attrib->program, attrib->block_tex);
+			drawn_indices.push_back(i);
 		}
 	}
 
-
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	for (int index : drawn_indices) {
+		chunks[index]->water_renderer.draw(attrib->program, attrib->block_tex);
+	}
+	glDisable(GL_BLEND);
 }
 
 int ChunkController::get_block(int x, int y, int z) {
@@ -83,9 +91,17 @@ int ChunkController::add_block(int type, int x, int y, int z) {
 }
 
 int ChunkController::add_generated_block(int type, int x, int y, int z) {
-	int index = add_block(type, x, y, z);
-	chunks[index]->set_freshly_generated(true);
-	return index;
+
+	int current_block = get_block(x, y, z);
+	if (current_block == AIR_BLOCK || current_block == WATER_BLOCK || current_block == LEAF_BLOCK) {
+		int index = add_block(type, x, y, z);
+		if (type == GRASS_BLOCK || type == STONE_BLOCK) {
+			chunks[index]->terrain_added = true;
+		}
+		chunks[index]->set_freshly_generated(true);
+		return index;
+	}
+	return -1;
 }
 
 void ChunkController::gen_one_buffer() {
@@ -202,7 +218,7 @@ void ChunkController::save_data(std::string filename) {
 	}
 	else cout << "Unable to open file: " << filename;
 }
-
+/*
 Json::Value ChunkController::read_data(std::string filename) {
 	std::ifstream file(filename);
 	std::string line;
@@ -233,6 +249,7 @@ Json::Value ChunkController::read_data(std::string filename) {
 
 	return root;
 }
+*/
 
 void ChunkController::load_data(std::string filename) {
 
@@ -261,7 +278,8 @@ void ChunkController::load_data(std::string filename) {
 					int count = 0;
 					while (ss >> i && count < CHUNK_SIZE)
 					{
-						add_block(i, chunkCoords[0] + ((lineIndex - 1) / CHUNK_SIZE), chunkCoords[1] + ((lineIndex - 1) % CHUNK_SIZE), chunkCoords[2] + count);
+						int index = add_block(i, chunkCoords[0] + ((lineIndex - 1) / CHUNK_SIZE), chunkCoords[1] + ((lineIndex - 1) % CHUNK_SIZE), chunkCoords[2] + count);
+						chunks[index]->terrain_added = true;
 						count++;
 						if (ss.peek() == ',')
 							ss.ignore();
@@ -329,7 +347,7 @@ float ChunkController::flat_dist_camera(int x, int y) {
 bool ChunkController::has_chunk(int x, int y) {
 	for (Chunk *chunk : chunks) {
 		glm::vec3 pos = chunk->position();
-		if (x == pos.x && y == pos.y) {
+		if (chunk->terrain_added && x == pos.x && y == pos.y) {
 			return true;
 		}
 	}
@@ -339,9 +357,26 @@ bool ChunkController::has_chunk(int x, int y) {
 void ChunkController::remove_chunks() {
 	for (int i = chunks.size() - 1; i >= 0; i--) {
 		glm::vec3 pos = chunks[i]->position();
-		if (flat_dist_camera(pos.x, pos.y) >= load_distance) {
-			//delete chunks[i];
-			chunks.erase(chunks.begin()+i);
+		if (flat_dist_camera(pos.x, pos.y) >= delete_distance) {
+
+			for (Chunk *chunk : chunks) {
+				if ((int)chunks[i]->position().x == (int)chunk->position().x && (int)chunks[i]->position().y == (int)chunk->position().y) {
+					if (!chunks[i]->get_freshly_generated() || !chunk->get_freshly_generated()) {
+						chunk->set_freshly_generated(false);
+						chunks[i]->set_freshly_generated(false);
+					}
+				}
+			}
+			if (chunks[i]->get_freshly_generated()) {
+				for (Chunk *c : chunks) {
+					int neighbor_index = c->add_neighbor(chunks[i]);
+					if (neighbor_index != -1) {
+						c->set_neighbor(nullptr, neighbor_index);
+					}
+				}
+				delete chunks[i];
+				chunks.erase(chunks.begin() + i);
+			}
 		}
 	}
 }

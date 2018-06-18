@@ -15,6 +15,9 @@
 #include "Camera.h"
 
 #include "World/ChunkController.h"
+#include "World/BlockUtil.h"
+
+#include "Inventory.h"
 
 class Controller {
 private:
@@ -30,8 +33,9 @@ private:
 	const glm::vec3 player_dimensions = glm::vec3(.5f, .5f, 1.99f);
 	const float player_head_offset = 0.5f;
 
-	int building_block_type = GRASS_BLOCK;
 	const bool collisions_enabled = true;
+
+	Inventory inventory;
 
 	glm::vec3 center;
 	glm::vec3 position;
@@ -50,9 +54,14 @@ private:
 	void handle_click(bool break_block);
 
 	void on_scroll(GLFWwindow* window, double xoffset, double yoffset);
+
+	void on_key(GLFWwindow* window, int key, int scancode, int action, int mods);
+
 public:
 	Controller(GLFWwindow *window, Camera *camera, ChunkController *chunkController);
-	void update();
+	void update(Attrib *attrib);
+
+	float get_dt();
 };
 
 #endif

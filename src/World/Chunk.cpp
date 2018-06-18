@@ -5,13 +5,15 @@
 #include <stdlib.h>
 #include <algorithm>
 
-Chunk::Chunk(int x, int y, int z): x(x), y(y), z(z) {
+Chunk::Chunk(int x, int y, int z): x(x), y(y), z(z), renderer(false), water_renderer(true) {
 
 	std::fill(std::begin(neighbors), std::end(neighbors), nullptr);
 
 	has_changed = false;
 
 	freshly_generated = false;
+
+	terrain_added = false;
 
 	for (int i = 0; i < size; i++) {
 		for (int j = 0; j < size; j++) {
@@ -80,80 +82,53 @@ void Chunk::gen_buffer() {
 			neighbor_blocks[i] = &(neighbors[i]->blocks);
 		}
 	}
-	/*for (int i = 0; i < 6; i++) {
-		if (neighbors[i] == nullptr) {
-			for (int _x = 0; _x < CHUNK_SIZE; _x++) {
-				for (int _y = 0; _y < CHUNK_SIZE; _y++) {
-					for (int _z = 0; _z < CHUNK_SIZE; _z++) {
-						Block b = { AIR_BLOCK };
-						neighbor_blocks[i][_x][_y][_z] = b;
-					}
-				}
-			}
-		}
-		else {
-			for (int _x = 0; _x < CHUNK_SIZE; _x++) {
-				for (int _y = 0; _y < CHUNK_SIZE; _y++) {
-					for (int _z = 0; _z < CHUNK_SIZE; _z++) {
-						
-						if (neighbors[i] != nullptr && neighbors[i]->blocks[_x][_y][_z].type != 0 && neighbors[i]->blocks[_x][_y][_z].type != 1) {
-							printf("%d\n", neighbors[i]->blocks[_x][_y][_z].type);
-						}
-
-						//Block b = { neighbors[i]->blocks[_x][_y][_z].type };
-
-						//neighbor_blocks[i][_x][_y][_z] = b;
-					}
-				}
-			}
-		}
-	}*/
 
 	renderer.gen_buffer(&blocks, x, y, z, neighbor_blocks);
+	water_renderer.gen_buffer(&blocks, x, y, z, neighbor_blocks);
 }
 
-void Chunk::draw(Attrib *attrib) {
-	renderer.draw(attrib);
-}
-
-bool Chunk::add_neighbor(Chunk *chunk) {
+int Chunk::add_neighbor(Chunk *chunk) {
 
 	//neighbor is in the positive direction on the x-axis relative to this chunk
 	if (x == chunk->x - CHUNK_SIZE && y == chunk->y && z == chunk->z) {
 		neighbors[0] = chunk;
-		return true;
+		return 0;
 	}
 
 	//neighbor is in the negative direction on the x-axis
 	else if (x == chunk->x + CHUNK_SIZE && y == chunk->y && z == chunk->z) {
 		neighbors[1] = chunk;
-		return true;
+		return 1;
 	}
 
 	//neighbor is in the positive direction on the y-axis
 	else if (x == chunk->x && y == chunk->y - CHUNK_SIZE && z == chunk->z) {
 		neighbors[2] = chunk;
-		return true;
+		return 2;
 	}
 
 	//neighbor is in the negative direction on the y-axis
 	else if (x == chunk->x && y == chunk->y + CHUNK_SIZE && z == chunk->z) {
 		neighbors[3] = chunk;
-		return true;
+		return 3;
 	}
 
 	//neighbor is above this chunk
 	else if (x == chunk->x && y == chunk->y && z == chunk->z - CHUNK_SIZE) {
 		neighbors[4] = chunk;
-		return true;
+		return 4;
 	}
 	//neighbor is below this chunk
 	else if (x == chunk->x && y == chunk->y && z == chunk->z + CHUNK_SIZE) {
 		neighbors[5] = chunk;
-		return true;
+		return 5;
 	}
 
-	return false;
+	return -1;
+}
+
+void Chunk::set_neighbor(Chunk *chunk, int index) {
+	neighbors[index] = chunk;
 }
 
 bool Chunk::changed() {

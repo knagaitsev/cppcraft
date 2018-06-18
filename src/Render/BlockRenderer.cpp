@@ -6,28 +6,12 @@
 
 #include <iostream>
 
-BlockRenderer::BlockRenderer() {
+BlockRenderer::BlockRenderer(bool is_water): is_water(is_water) {
+	std::vector<GLfloat> v;
+	gen_vertices_buffer(&v);
 
-}
-
-void BlockRenderer::gen_vertices_buffer(std::vector<GLfloat> *vertices) {
-
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices->size() * sizeof(GLfloat), vertices->data(), GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	vertices_size = vertices->size();
-}
-
-void BlockRenderer::gen_elements_buffer(std::vector<GLuint> *elements) {
-
-	glGenBuffers(1, &ebo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements->size() * sizeof(GLuint), elements->data(), GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	elements_size = elements->size();
+	std::vector<GLuint> e;
+	gen_elements_buffer(&e);
 }
 
 void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE], int offsetX, int offsetY, int offsetZ, Block(*neighbor_blocks[6])[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE]) {
@@ -42,8 +26,7 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 		for (int y = 0; y < size; y++) {
 			for (int z = 0; z < size; z++) {
 				Block block = (*blocks)[x][y][z];
-				if (block.type != AIR_BLOCK) {
-
+				if (block.type != AIR_BLOCK && ((block.type == WATER_BLOCK && is_water) || (block.type != WATER_BLOCK && !is_water))) {
 
 					bool fill_faces[6];
 					std::fill(std::begin(fill_faces), std::end(fill_faces), true);
@@ -80,42 +63,28 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 						}
 
 
-						if (neighborType != AIR_BLOCK && !BLOCK_FACES[neighborType][6]) {
+						if (neighborType != AIR_BLOCK && (BLOCK_FACES[neighborType][6] == 0 || BLOCK_FACES[block.type][6] == 2)) {
 							fill_faces[i] = false;
 						}
 
-						if (BLOCK_FACES[neighborType][6]) {
+						if (BLOCK_FACES[neighborType][6] == 1) {
 							neighbors_have_transparency[i] = true;
 						}
 
 						coords[i / 2] = originalCoord;
 					}
-					
-					/*if ((x + 1 < CHUNK_SIZE && (*blocks)[x + 1][y][z].type != AIR_BLOCK) || (x + 1 == CHUNK_SIZE && neighbor_blocks[0] != nullptr && (*neighbor_blocks[0])[0][y][z].type != AIR_BLOCK)) {
-						fill_faces[0] = false;
+
+					bool one_filled = false;
+					for (int f = 0; f < NELEMS(fill_faces); f++) {
+						if (fill_faces[f]) {
+							one_filled = true;
+							break;
+						}
 					}
 
-					if ((x - 1 >= 0 && (*blocks)[x - 1][y][z].type != AIR_BLOCK) || (x == 0 && neighbor_blocks[1] != nullptr && (*neighbor_blocks[1])[CHUNK_SIZE - 1][y][z].type != AIR_BLOCK)) {
-						fill_faces[1] = false;
+					if (!one_filled) {
+						continue;
 					}
-
-					if ((y + 1 < CHUNK_SIZE && (*blocks)[x][y + 1][z].type != AIR_BLOCK) || (y + 1 == CHUNK_SIZE && neighbor_blocks[2] != nullptr && (*neighbor_blocks[2])[x][0][z].type != AIR_BLOCK)) {
-						fill_faces[2] = false;
-					}
-
-					if ((y - 1 >= 0 && (*blocks)[x][y - 1][z].type != AIR_BLOCK) || (y == 0 && neighbor_blocks[3] != nullptr && (*neighbor_blocks[3])[x][CHUNK_SIZE - 1][z].type != AIR_BLOCK)) {
-						fill_faces[3] = false;
-					}
-
-					//block above
-					if ((z + 1 < CHUNK_SIZE && (*blocks)[x][y][z + 1].type != AIR_BLOCK) || (z + 1 == CHUNK_SIZE && neighbor_blocks[4] != nullptr && (*neighbor_blocks[4])[x][y][0].type != AIR_BLOCK)) {
-						fill_faces[4] = false;
-					}
-
-					//block below
-					if ((z - 1 >= 0 && (*blocks)[x][y][z - 1].type != AIR_BLOCK) || (z == 0 && neighbor_blocks[5] != nullptr && (*neighbor_blocks[5])[x][y][CHUNK_SIZE - 1].type != AIR_BLOCK)) {
-						fill_faces[5] = false;
-					}*/
 
 					int faces[6];
 					std::copy_n(std::begin(BLOCK_FACES[block.type]), 6, std::begin(faces));
@@ -200,7 +169,7 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 					for (int i = 0; i < NELEMS(fill_faces); i++) {
 						if (fill_faces[i]) {
 							for (int reverse = 0; reverse < 2; reverse++) {
-								if (reverse == 1 && BLOCK_FACES[block.type][6] == 1 && !neighbors_have_transparency[i]) {
+								if (reverse == 1 && (block.type == WATER_BLOCK || (BLOCK_FACES[block.type][6] == 1 && !neighbors_have_transparency[i]))) {
 									int temp = elementArray[0];
 									elementArray[0] = elementArray[1];
 									elementArray[1] = temp;
@@ -241,26 +210,4 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 
 	gen_vertices_buffer(&vertices);
 	gen_elements_buffer(&elements);
-}
-
-void BlockRenderer::draw(Attrib *attrib) {
-
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-
-
-	glEnableVertexAttribArray(attrib->position);
-	glVertexAttribPointer(attrib->position, 3, GL_FLOAT, GL_FALSE, vertex_size * sizeof(GLfloat), 0);
-
-	glEnableVertexAttribArray(attrib->tex);
-	glVertexAttribPointer(attrib->tex, 2, GL_FLOAT, GL_FALSE, vertex_size * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
-
-	glDrawElements(GL_TRIANGLES, elements_size, GL_UNSIGNED_INT, 0);
-	//glDrawArrays(GL_TRIANGLES, 0, vertices_size * vertex_size);
-
-	glDisableVertexAttribArray(attrib->position);
-	glDisableVertexAttribArray(attrib->tex);
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }

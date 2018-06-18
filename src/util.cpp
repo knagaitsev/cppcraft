@@ -111,6 +111,18 @@ void load_png_texture(const char *file_name) {
 	free(data);
 }
 
+GLuint load_image(const char *filename) {
+	GLuint tex;
+	glGenTextures(1, &tex);
+	//glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, tex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	load_png_texture(filename);
+	return tex;
+}
+
 glm::vec3 rotate_vec3(glm::vec3 vec, float angle, glm::vec3 axis) {
 	glm::mat4 trans(1);
 	trans = glm::rotate(trans, angle, axis);

@@ -118,11 +118,16 @@ int main() {
 
 	GLuint shaderProgram = load_shader("../../../shaders/vertex1.glsl", "../../../shaders/fragment1.glsl");
 
-	glUseProgram(shaderProgram);
-
 	attrib.program = shaderProgram;
-	attrib.position = glGetAttribLocation(shaderProgram, "position");
-	attrib.tex = glGetAttribLocation(shaderProgram, "texcoord");
+
+	shaderProgram = load_shader("../../../shaders/vertex2.glsl", "../../../shaders/fragment1.glsl");
+
+	attrib.program2 = shaderProgram;
+
+	shaderProgram = load_shader("../../../shaders/vertex3.glsl", "../../../shaders/fragment1.glsl");
+
+	attrib.program3 = shaderProgram;
+
 	/*
 	glEnableVertexAttribArray(attrib.position);
 	glVertexAttribPointer(attrib.position, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
@@ -130,14 +135,12 @@ int main() {
 	glEnableVertexAttribArray(attrib.tex);
 	glVertexAttribPointer(attrib.tex, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 	*/
-	GLuint tex;
-	glGenTextures(1, &tex);
-	//glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, tex);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	load_png_texture("../../../asset/gimp/blocks.png");
+	
+	attrib.block_tex = load_image("../../../asset/gimp/blocks4.png");
+	attrib.cat_tex = load_image("../../../asset/sample.png");
+	attrib.crosshair = load_image("../../../asset/gimp/crosshair.png");
+	attrib.lower_inventory = load_image("../../../asset/gimp/lower_inventory.png");
+	attrib.lower_inventory_selector = load_image("../../../asset/gimp/lower_inventory_selector.png");
 
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
@@ -146,24 +149,25 @@ int main() {
 	ChunkController c(&camera);
 	Controller controller(window, &camera, &c);
 
-	World world(&c, &camera);
+	World world(&c, &camera, &controller);
 
-	glClearColor(0.5f, 0.5f, 1.0f, 0.0f);
+	glClearColor(0.3f, 0.77f, 1.0f, 0.0f);
 
 	do {
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-		//update controller
-		controller.update();
 		//update camera
-		camera.update();
-
-		world.update();
+		camera.update(&attrib);
 
 		//drawing
 		//glDrawElements(GL_TRIANGLES, NELEMS(elements), GL_UNSIGNED_INT, 0);
 		c.draw(&attrib);
+
+		world.update();
+
+		//update controller
+		controller.update(&attrib);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

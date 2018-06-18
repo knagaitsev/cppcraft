@@ -19,8 +19,8 @@
 
 #include "../Camera.h"
 
-#include <json/reader.h>
-#include <json/writer.h>
+//#include <json/reader.h>
+//#include <json/writer.h>
 
 class ChunkController {
 private:
@@ -31,9 +31,11 @@ private:
 public:
 	float flat_dist_camera(int x, int y);
 
-	const float render_distance = 100.0f;
+	const float render_distance = 70.0f;
 
-	const float load_distance = 110.0f;
+	const float load_distance = 80.0f;
+
+	const float delete_distance = 100.0f;
 
 	const float cut_angle = 55.0f;
 
@@ -54,7 +56,7 @@ public:
 	void gen_changed_buffers();
 
 	void save_data(std::string filename);
-	Json::Value read_data(std::string filename);
+	//Json::Value read_data(std::string filename);
 	void load_data(std::string filename);
 
 	bool has_chunk(int x, int y);

@@ -21,7 +21,7 @@ public:
 
 	Camera(GLFWwindow *window, Attrib *attrib, float fovy, float width, float height, float zNear, float zFar);
 
-	void update();
+	void update(Attrib *attrib);
 };
 
 #endif

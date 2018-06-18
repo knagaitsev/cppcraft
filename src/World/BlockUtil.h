@@ -19,6 +19,7 @@ typedef struct {
 #define COBBLESTONE_BLOCK 6
 #define PLANK_BLOCK 7
 #define SAND_BLOCK 8
+#define WATER_BLOCK 9
 
 static int BLOCK_FACES[][7] = {
 	//first 6 are face textures, next int is a boolean of whether or not this block has some transparency
@@ -30,7 +31,8 @@ static int BLOCK_FACES[][7] = {
 	{ 1, 1, 1, 1, 1, 1, 0 },
 	{ 2, 2, 2, 2, 2, 2, 0 },
 	{ 3, 3, 3, 3, 3, 3, 0 },
-	{ 5, 5, 5, 5, 5, 5, 0 }
+	{ 5, 5, 5, 5, 5, 5, 0 },
+	{ 6, 6, 6, 6, 6, 6, 2 }
 };
 
 #endif
