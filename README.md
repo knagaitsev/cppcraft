@@ -1,5 +1,7 @@
 Video (Part 1): https://youtu.be/j3-rK9HBWgo
 
+Video (Part 2): https://youtu.be/16mFLQUAh3Q
+
 ## How to play:
 - Click "Clone or Download"
 - Select "Download ZIP"
