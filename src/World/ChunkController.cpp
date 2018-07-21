@@ -22,7 +22,12 @@ ChunkController::ChunkController(Camera *camera): camera(camera) {
 }
 
 void ChunkController::draw(Attrib *attrib) {
-	std::vector<int> drawn_indices;
+	struct DrawnChunk {
+		int index;
+		float distance;
+	};
+
+	std::vector<DrawnChunk> drawn_indices;
 	for (int i = 0; i < chunks.size(); i++) {
 		Chunk *c = chunks[i];
 		glm::vec3 chunk_pos = c->position();
@@ -38,14 +43,20 @@ void ChunkController::draw(Attrib *attrib) {
 
 		if (dist < render_distance/* && (camera->center.z < camera->position.z || (glm::angle(normalize(chunk_direc), normalize(look_direc))) <= radians(cut_angle / 2.0f))*/) {
 			c->renderer.draw(attrib->program, attrib->block_tex);
-			drawn_indices.push_back(i);
+			float dist = glm::distance2(glm::vec3(chunks[i]->center), camera->position);
+			DrawnChunk dc = { i, dist };
+			drawn_indices.push_back(dc);
 		}
 	}
 
+	std::sort(drawn_indices.begin(), drawn_indices.end(), [](const DrawnChunk &a, const DrawnChunk &b) {
+		return a.distance > b.distance;
+	});
+
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	for (int index : drawn_indices) {
-		chunks[index]->water_renderer.draw(attrib->program, attrib->block_tex);
+	for (DrawnChunk c : drawn_indices) {
+		chunks[c.index]->water_renderer.draw_transparent(attrib->program, attrib->block_tex, camera->position);
 	}
 	glDisable(GL_BLEND);
 }
@@ -359,6 +370,7 @@ void ChunkController::remove_chunks() {
 		glm::vec3 pos = chunks[i]->position();
 		if (flat_dist_camera(pos.x, pos.y) >= delete_distance) {
 
+			//force all chunks above and below an edited chunk to not be freshly generated
 			for (Chunk *chunk : chunks) {
 				if ((int)chunks[i]->position().x == (int)chunk->position().x && (int)chunks[i]->position().y == (int)chunk->position().y) {
 					if (!chunks[i]->get_freshly_generated() || !chunk->get_freshly_generated()) {
@@ -367,6 +379,7 @@ void ChunkController::remove_chunks() {
 					}
 				}
 			}
+			//delete a chunk only if it and the chunks above/below it have never been edited
 			if (chunks[i]->get_freshly_generated()) {
 				for (Chunk *c : chunks) {
 					int neighbor_index = c->add_neighbor(chunks[i]);
@@ -374,6 +387,7 @@ void ChunkController::remove_chunks() {
 						c->set_neighbor(nullptr, neighbor_index);
 					}
 				}
+				chunks[i]->delete_buffer();
 				delete chunks[i];
 				chunks.erase(chunks.begin() + i);
 			}

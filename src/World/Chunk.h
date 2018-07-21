@@ -26,13 +26,17 @@ private:
 
 	Chunk* neighbors[6];
 
+	//this variable tells if the chunk has changed since its buffer was last updated
 	bool has_changed;
 
 	int reduce_to_fit(int num);
 
+	//this variable tells if this chunk or chunks above/below it have ever been edited
 	bool freshly_generated;
 
 public:
+	glm::ivec3 center;
+
 	BlockRenderer renderer;
 	BlockRenderer water_renderer;
 	
@@ -41,6 +45,8 @@ public:
 
 	Chunk(int x, int y, int z);
 	void gen_buffer();
+
+	void delete_buffer();
 
 	bool has_block(int x, int y, int z);
 	bool add_block(int type, int x, int y, int z);

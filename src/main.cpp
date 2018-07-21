@@ -174,7 +174,7 @@ int main() {
 
 	} while (glfwWindowShouldClose(window) == 0);
 	
-	c.save_data(world.filename);
+	//c.save_data(world.filename);
 
 	glfwTerminate();
 

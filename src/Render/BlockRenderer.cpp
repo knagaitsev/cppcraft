@@ -31,6 +31,9 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 					bool fill_faces[6];
 					std::fill(std::begin(fill_faces), std::end(fill_faces), true);
 
+					int neighbor_types[6];
+					std::fill(std::begin(neighbor_types), std::end(neighbor_types), AIR_BLOCK);
+
 					bool neighbors_have_transparency[6];
 					std::fill(std::begin(neighbors_have_transparency), std::end(neighbors_have_transparency), false);
 
@@ -62,6 +65,7 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 							neighborType = (*blocks)[coords[0]][coords[1]][coords[2]].type;
 						}
 
+						neighbor_types[i] = neighborType;
 
 						if (neighborType != AIR_BLOCK && (BLOCK_FACES[neighborType][6] == 0 || BLOCK_FACES[block.type][6] == 2)) {
 							fill_faces[i] = false;
@@ -72,6 +76,10 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 						}
 
 						coords[i / 2] = originalCoord;
+					}
+
+					if (is_water && neighbor_types[4] != WATER_BLOCK) {
+						fill_faces[4] = true;
 					}
 
 					bool one_filled = false;
@@ -148,6 +156,14 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 						0, 1, 2,
 						2, 3, 0
 					};
+
+					for (int i = 0; i < NELEMS(verticesArray); i++) {
+						if (i % 5 == 2) {
+							if (is_water && neighbor_types[4] != WATER_BLOCK && verticesArray[i] == .5f) {
+								verticesArray[i] -= .15f;
+							}
+						}
+					}
 
 					for (int i = 0; i < NELEMS(verticesArray); i++) {
 						if (fill_faces[i / 20]) {

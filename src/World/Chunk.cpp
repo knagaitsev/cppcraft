@@ -7,6 +7,8 @@
 
 Chunk::Chunk(int x, int y, int z): x(x), y(y), z(z), renderer(false), water_renderer(true) {
 
+	center = glm::ivec3(x + CHUNK_SIZE / 2, y + CHUNK_SIZE / 2, z + CHUNK_SIZE / 2);
+
 	std::fill(std::begin(neighbors), std::end(neighbors), nullptr);
 
 	has_changed = false;
@@ -157,4 +159,8 @@ int Chunk::reduce_to_fit(int num) {
 
 void Chunk::set_freshly_generated(bool freshly_generated) {
 	this->freshly_generated = freshly_generated;
+}
+
+void Chunk::delete_buffer() {
+	renderer.delete_buffers();
 }
