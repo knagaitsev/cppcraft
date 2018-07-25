@@ -1,36 +1,30 @@
-/*
-static Camera
-static ShaderController
-static AssetController
-
-GameInstance: public Game
-static ChunkController
-world
-controller
-
-World: public GameInstance
-Controller: public GameInstance
-
-*/
-
 #ifndef _Game_h_
 #define _Game_h_
 
-#include <stdio.h>
-#include <stdlib.h>
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 
-#include "../Camera.h"
-#include "ChunkController.h"
+#include "util.h"
+
+#include "Camera.h"
+
+#include "Shaders/ShaderManager.h"
+#include "Texture/TextureManager.h"
 
 class Game {
 private:
 
 protected:
-	static ChunkController *chunkController;
-
+	static GLFWwindow *window;
 	static Camera *camera;
+	static ShaderManager *shaderManager;
+	static TextureManager *textureManager;
+
 public:
-	
+	static void Game::initialize();
+	virtual void update() = 0;
+	void start();
 };
 
 #endif

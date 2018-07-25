@@ -10,6 +10,8 @@
 
 #include <glm/glm.hpp>
 
+#include "Game.h"
+
 #include "config.h"
 
 #include "Camera.h"
@@ -20,7 +22,7 @@
 #include "Render/EntityBlockRenderer.h"
 #include "Render/InventoryRenderer.h"
 
-class Inventory {
+class Inventory : public Game {
 private:
 	GLFWwindow *window;
 	Camera *camera;
@@ -39,10 +41,10 @@ private:
 	InventoryRenderer crosshair;
 
 	InventoryRenderer lower_inventory;
-
+protected:
 public:
-	Inventory(GLFWwindow *window, Camera *camera);
-	void update(Attrib *attrib);
+	void update();
+	Inventory();
 
 	int building_block_type = AIR_BLOCK;
 

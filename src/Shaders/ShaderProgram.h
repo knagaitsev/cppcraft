@@ -7,17 +7,21 @@
 
 #include <glm/glm.hpp>
 
-#include "../util.h"
-
-class IRenderer {
+class ShaderProgram {
 private:
 	GLuint program;
+	GLint position;
+	GLint tex;
 protected:
 	
 public:
+	ShaderProgram();
 	ShaderProgram(const char *vertex_path, const char *fragment_path);
 	void bind();
 	void unbind();
+
+	GLint get_proj_location();
+	GLint get_view_location();
 };
 
 #endif

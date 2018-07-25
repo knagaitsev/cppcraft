@@ -19,7 +19,10 @@ using glm::vec3;
 using namespace glm;
 using namespace std;
 
-Inventory::Inventory(GLFWwindow *window, Camera *camera) : window(window), camera(camera), crosshair(window), lower_inventory(window) {
+Inventory::Inventory() {
+
+	window = Game::window;
+	camera = Game::camera;
 
 	current_slot = 0;
 
@@ -48,19 +51,19 @@ Inventory::Inventory(GLFWwindow *window, Camera *camera) : window(window), camer
 	for (int i = 0; i < 9; i++) {
 		float centerX = left + single_cell_size * i + 6;
 		int centerY = inv_middle + 2;
-		InventoryRenderer block(window);
+		InventoryRenderer block;
 		if (i > 0) {
 			block.gen_block_buffer(i, centerX, centerY, 48);
 		}
 		blocks.push_back(block);
 
-		InventoryRenderer selec(window);
+		InventoryRenderer selec;
 		selec.gen_buffer(centerX, centerY, 24 * 3, 25 * 3);
 		lower_inventory_selectors.push_back(selec);
 	}
 }
 
-void Inventory::update(Attrib *attrib) {
+void Inventory::update() {
 
 	if (glfwGetKey(window, KEY_FORWARD)) {
 		
@@ -68,20 +71,20 @@ void Inventory::update(Attrib *attrib) {
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
-	hand_block.draw(attrib->program2, attrib->block_tex);
+	hand_block.draw("shader2", "blocks");
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	lower_inventory.draw(attrib->program3, attrib->lower_inventory);
+	lower_inventory.draw("shader3", "lower_inventory");
 
-	lower_inventory_selectors[current_slot].draw(attrib->program3, attrib->lower_inventory_selector);
+	lower_inventory_selectors[current_slot].draw("shader3", "lower_inventory_selector");
 
 	glDisable(GL_BLEND);
 
-	crosshair.draw(attrib->program3, attrib->crosshair);
+	crosshair.draw("shader3", "crosshair");
 
 	for (InventoryRenderer r : blocks) {
-		r.draw(attrib->program3, attrib->block_tex);
+		r.draw("shader3", "blocks");
 	}
 
 	glEnable(GL_CULL_FACE);

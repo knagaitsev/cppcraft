@@ -11,6 +11,7 @@
 
 #include <glm/glm.hpp>
 
+
 #include "Chunk.h"
 
 #include "../Render/BlockRenderer.h"
@@ -49,7 +50,7 @@ public:
 	int add_generated_block(int type, int x, int y, int z);
 	int add_generated_block(int type, glm::vec3 vec) { return add_generated_block(type, floor(vec.x), floor(vec.y), floor(vec.z)); };
 
-	void draw(Attrib *attrib);
+	void draw();
 
 	void gen_one_buffer();
 	void gen_all_buffers();

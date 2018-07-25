@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(cppcraft)
 
-FILE(GLOB SOURCE_FILES src/** src/World/** src/Render/** src/shaders/**)
+FILE(GLOB SOURCE_FILES src/** src/World/** src/Render/** src/Shaders/** src/Texture/**)
 
 FILE(GLOB JSONCPP_SOURCE_FILES deps/jsoncpp/dist/**)
 

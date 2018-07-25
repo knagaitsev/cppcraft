@@ -8,20 +8,22 @@
 
 #include <glm/glm.hpp>
 
+#include "../Game.h"
+
 #include "ChunkController.h"
 
 #include "../Camera.h"
 
-#include "../Controller.h"
+#include "../PlayerController.h"
 
-class World {
+class World : public Game {
 private:
 
 	ChunkController *chunkController;
 
 	Camera *camera;
 
-	Controller *controller;
+	PlayerController *controller;
 
 	bool loaded_area_changed(bool should_fill);
 
@@ -45,7 +47,7 @@ private:
 public:
 	std::string filename;
 
-	World(ChunkController *chunkController, Camera *camera, Controller *controller);
+	World(ChunkController *chunkController, PlayerController *controller);
 	void update();
 	void gen_new_chunks(int x, int y);
 };

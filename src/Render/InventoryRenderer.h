@@ -20,8 +20,11 @@ class InventoryRenderer : public IRenderer {
 private:
 	GLFWwindow *window;
 	void printVec2(glm::vec2 vec);
+protected:
 public:
-	InventoryRenderer(GLFWwindow *window);
+	InventoryRenderer();
+
+	void update();
 	void gen_buffer(vec2 tright, vec2 tleft, vec2 bleft, vec2 bright);
 	void gen_buffer(float centerX, float centerY, unsigned int width, unsigned int height);
 

@@ -6,6 +6,11 @@
 
 #include <iostream>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/norm.hpp>
+
+using glm::vec3;
+
 BlockRenderer::BlockRenderer(bool is_water): is_water(is_water) {
 	std::vector<GLfloat> v;
 	gen_vertices_buffer(&v);
@@ -226,4 +231,34 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 
 	gen_vertices_buffer(&vertices);
 	gen_elements_buffer(&elements);
+}
+
+void BlockRenderer::draw_transparent(std::string programKey, std::string textureKey, vec3 player_pos) {
+	begin(programKey, textureKey);
+
+	std::vector<Triangle> triangles;
+
+	for (int i = 0; i < elements_size; i += 6) {
+		int triangle_index = (i / 3);
+		int vert_index = (elements[i]) * vertex_size;
+		int vert_index_2 = (elements[i + 2]) * vertex_size;
+		//glm::vec3 p1 = glm::vec3(vertices[vert_index], vertices[vert_index + 1], vertices[vert_index + 2]);
+		float x = (vertices[vert_index] + vertices[vert_index_2]) / 2;
+		float y = (vertices[vert_index + 1] + vertices[vert_index_2 + 1]) / 2;
+		float z = (vertices[vert_index + 2] + vertices[vert_index_2 + 2]) / 2;
+		glm::vec3 p1 = glm::vec3(x, y, z);
+		float dist = glm::distance2(p1, player_pos);
+		Triangle t = { triangle_index, dist };
+		triangles.push_back(t);
+	}
+
+	std::sort(triangles.begin(), triangles.end(), [](const Triangle &t1, const Triangle &t2) {
+		return t1.distance > t2.distance;
+	});
+
+	for (int i = 0; i < triangles.size(); i++) {
+		draw_triangles(triangles[i].index * 3, 6);
+	}
+
+	end(programKey);
 }

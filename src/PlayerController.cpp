@@ -1,4 +1,4 @@
-#include "Controller.h"
+#include "PlayerController.h"
 
 #include <math.h>
 
@@ -19,8 +19,10 @@ using glm::vec3;
 using namespace glm;
 using namespace std;
 
-Controller::Controller(GLFWwindow *window, Camera *camera, ChunkController *chunkController): window(window), camera(camera), chunkController(chunkController), inventory(window, camera) {
+PlayerController::PlayerController(ChunkController *chunkController): chunkController(chunkController) {
 
+	window = Game::window;
+	camera = Game::camera;
 
 	t_start = std::chrono::high_resolution_clock::now();
 
@@ -32,27 +34,27 @@ Controller::Controller(GLFWwindow *window, Camera *camera, ChunkController *chun
 
 	auto click_func = [](GLFWwindow* window, int button, int action, int mods)
 	{
-		static_cast<Controller*>(glfwGetWindowUserPointer(window))->on_mouse_button(window, button, action, mods);
+		static_cast<PlayerController*>(glfwGetWindowUserPointer(window))->on_mouse_button(window, button, action, mods);
 	};
 
 	glfwSetMouseButtonCallback(window, click_func);
 
 	auto scroll_func = [](GLFWwindow* window, double xoffset, double yoffset)
 	{
-		static_cast<Controller*>(glfwGetWindowUserPointer(window))->on_scroll(window, xoffset, yoffset);
+		static_cast<PlayerController*>(glfwGetWindowUserPointer(window))->on_scroll(window, xoffset, yoffset);
 	};
 
 	glfwSetScrollCallback(window, scroll_func);
 
 	auto key_func = [](GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
-		static_cast<Controller*>(glfwGetWindowUserPointer(window))->on_key(window, key, scancode, action, mods);
+		static_cast<PlayerController*>(glfwGetWindowUserPointer(window))->on_key(window, key, scancode, action, mods);
 	};
 
 	glfwSetKeyCallback(window, key_func);
 }
 
-void Controller::update(Attrib *attrib) {
+void PlayerController::update() {
 	//camera->position.z = -10.0f;
 
 	if (cursor_disabled && glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -136,10 +138,10 @@ void Controller::update(Attrib *attrib) {
 	camera->center = center;
 	camera->up = up;
 
-	inventory.update(attrib);
+	inventory.update();
 }
 
-void Controller::handle_mouse_input(double dt) {
+void PlayerController::handle_mouse_input(double dt) {
 	double nx, ny;
 	glfwGetCursorPos(window, &nx, &ny);
 	double dx = mx - nx;
@@ -173,13 +175,13 @@ void Controller::handle_mouse_input(double dt) {
 	}
 }
 
-void Controller::rotate_center(float angle, vec3 axis) {
+void PlayerController::rotate_center(float angle, vec3 axis) {
 	vec3 dif = center - position;
 	vec3 rot = rotate_vec3(dif, angle, axis);
 	center = position + rot;
 }
 
-bool Controller::test_hitbox(glm::vec3 center, glm::vec3 dimensions) {
+bool PlayerController::test_hitbox(glm::vec3 center, glm::vec3 dimensions) {
 
 	int bounds[6];
 	for (int i = 0; i < 3; i++) {
@@ -203,7 +205,7 @@ bool Controller::test_hitbox(glm::vec3 center, glm::vec3 dimensions) {
 	return true;
 }
 
-glm::vec3 Controller::good_hitbox_center(glm::vec3 current_center, glm::vec3 dimensions, glm::vec3 motionVec, glm::vec3 look_direction) {
+glm::vec3 PlayerController::good_hitbox_center(glm::vec3 current_center, glm::vec3 dimensions, glm::vec3 motionVec, glm::vec3 look_direction) {
 
 	vec3 result = current_center;
 
@@ -244,7 +246,7 @@ glm::vec3 Controller::good_hitbox_center(glm::vec3 current_center, glm::vec3 dim
 	return result;
 }
 
-void Controller::on_mouse_button(GLFWwindow *window, int button, int action, int mods) {
+void PlayerController::on_mouse_button(GLFWwindow *window, int button, int action, int mods) {
 	if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
 		handle_click(true);
 	}
@@ -258,7 +260,7 @@ void Controller::on_mouse_button(GLFWwindow *window, int button, int action, int
 	}
 }
 
-void Controller::handle_click(bool break_block) {
+void PlayerController::handle_click(bool break_block) {
 
 	if (!break_block && inventory.building_block_type == AIR_BLOCK) {
 		return;
@@ -325,15 +327,15 @@ void Controller::handle_click(bool break_block) {
 	}
 }
 
-void Controller::on_scroll(GLFWwindow* window, double xoffset, double yoffset) {
+void PlayerController::on_scroll(GLFWwindow* window, double xoffset, double yoffset) {
 	inventory.on_scroll(window, xoffset, yoffset);
 }
 
-float Controller::get_dt() {
+float PlayerController::get_dt() {
 	auto t_now = std::chrono::high_resolution_clock::now();
 	return std::chrono::duration_cast<std::chrono::duration<float>>(t_now - t_start).count();
 }
 
-void Controller::on_key(GLFWwindow* window, int key, int scancode, int action, int mods) {
+void PlayerController::on_key(GLFWwindow* window, int key, int scancode, int action, int mods) {
 	inventory.on_key(window, key, scancode, action, mods);
 }

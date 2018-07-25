@@ -4,9 +4,12 @@
 #include <fstream>
 #include <sstream>
 
+#include <string.h>
 #include <algorithm>
 
 #include "BlockUtil.h"
+
+#include "../Shaders/ShaderProgram.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/vector_angle.hpp>
@@ -21,7 +24,7 @@ ChunkController::ChunkController(Camera *camera): camera(camera) {
 	
 }
 
-void ChunkController::draw(Attrib *attrib) {
+void ChunkController::draw() {
 	struct DrawnChunk {
 		int index;
 		float distance;
@@ -42,7 +45,7 @@ void ChunkController::draw(Attrib *attrib) {
 		chunk_direc.z = 0;
 
 		if (dist < render_distance/* && (camera->center.z < camera->position.z || (glm::angle(normalize(chunk_direc), normalize(look_direc))) <= radians(cut_angle / 2.0f))*/) {
-			c->renderer.draw(attrib->program, attrib->block_tex);
+			c->renderer.draw("shader1", "blocks");
 			float dist = glm::distance2(glm::vec3(chunks[i]->center), camera->position);
 			DrawnChunk dc = { i, dist };
 			drawn_indices.push_back(dc);
@@ -56,7 +59,7 @@ void ChunkController::draw(Attrib *attrib) {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for (DrawnChunk c : drawn_indices) {
-		chunks[c.index]->water_renderer.draw_transparent(attrib->program, attrib->block_tex, camera->position);
+		chunks[c.index]->water_renderer.draw_transparent("shader1", "blocks", camera->position);
 	}
 	glDisable(GL_BLEND);
 }

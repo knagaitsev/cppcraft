@@ -14,8 +14,8 @@ using glm::vec3;
 using namespace glm;
 using namespace std;
 
-InventoryRenderer::InventoryRenderer(GLFWwindow *window): window(window) {
-	
+InventoryRenderer::InventoryRenderer() {
+	window = Game::window;
 }
 
 void InventoryRenderer::gen_buffer(vec2 tright, vec2 tleft, vec2 bleft, vec2 bright) {
@@ -199,4 +199,8 @@ void InventoryRenderer::gen_block_buffer(int type, float centerX, float centerY,
 
 void InventoryRenderer::printVec2(glm::vec2 vec) {
 	cout << vec.x << ", " << vec.y << endl;
+}
+
+void InventoryRenderer::update() {
+
 }

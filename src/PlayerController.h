@@ -1,5 +1,5 @@
-#ifndef _Controller_h_
-#define _Controller_h_
+#ifndef _PlayerController_h_
+#define _PlayerController_h_
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,6 +10,8 @@
 
 #include <glm/glm.hpp>
 
+#include "Game.h"
+
 #include "config.h"
 
 #include "Camera.h"
@@ -19,7 +21,7 @@
 
 #include "Inventory.h"
 
-class Controller {
+class PlayerController : public Game {
 private:
 	GLFWwindow * window;
 	Camera *camera;
@@ -56,10 +58,11 @@ private:
 	void on_scroll(GLFWwindow* window, double xoffset, double yoffset);
 
 	void on_key(GLFWwindow* window, int key, int scancode, int action, int mods);
-
+protected:
 public:
-	Controller(GLFWwindow *window, Camera *camera, ChunkController *chunkController);
-	void update(Attrib *attrib);
+	PlayerController(ChunkController *chunkController);
+
+	void update();
 
 	float get_dt();
 };

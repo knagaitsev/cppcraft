@@ -16,7 +16,9 @@ using namespace glm;
 using namespace noise;
 using namespace std;
 
-World::World(ChunkController *chunkController, Camera *camera, Controller *controller): chunkController(chunkController), camera(camera), controller(controller) {
+World::World(ChunkController *chunkController, PlayerController *controller): chunkController(chunkController), controller(controller) {
+
+	camera = Game::camera;
 
 	buffer_gen_count = 0;
 	awaiting_buffer_gen = false;

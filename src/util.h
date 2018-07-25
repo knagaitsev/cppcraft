@@ -34,15 +34,15 @@ glm::vec3 rotate_vec3(glm::vec3 vec, float angle, glm::vec3 axis);
 
 void print_vec3(glm::vec3 vec);
 
-typedef struct {
-	GLuint program;
-	GLuint program2;
-	GLuint program3;
-	GLuint block_tex;
-	GLuint cat_tex;
-	GLuint crosshair;
-	GLuint lower_inventory;
-	GLuint lower_inventory_selector;
-} Attrib;
+//typedef struct {
+//	GLuint program;
+//	GLuint program2;
+//	GLuint program3;
+//	GLuint block_tex;
+//	GLuint cat_tex;
+//	GLuint crosshair;
+//	GLuint lower_inventory;
+//	GLuint lower_inventory_selector;
+//} Attrib;
 
 #endif

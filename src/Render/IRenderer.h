@@ -3,16 +3,29 @@
 
 #include <vector>
 
-#include <GL/glew.h>
+#include <string.h>
 
-#include <glm/glm.hpp>
+#include <GL/glew.h>
 
 #include "../util.h"
 
-class IRenderer {
+#include "../Game.h"
+
+#include "../Shaders/ShaderProgram.h"
+
+class IRenderer : public Game {
 private:
 	GLuint vbo;
 	GLuint ebo;
+
+	void bind_texture(std::string textureKey);
+
+	void bind_buffer();
+	void unbind_buffer();
+
+	void bind_program(std::string key);
+	void unbind_program(std::string key);
+protected:
 	int elements_size;
 	int vertices_size;
 	std::vector<GLfloat> vertices;
@@ -23,21 +36,18 @@ private:
 		float distance;
 	};
 
-	void bind_texture(GLuint texture);
-
-	void bind_buffer();
-	void unbind_buffer();
-
-	void bind_program();
-	void unbind_program();
-protected:
 	const int vertex_size = 5;
 
 	void gen_vertices_buffer(std::vector<GLfloat> *vertices);
 	void gen_elements_buffer(std::vector<GLuint> *elements);
+
+	void draw_triangles(int start, int length);
+
+	void begin(std::string programKey, std::string textureKey);
+	void end(std::string programKey);
 public:
-	void draw(GLuint program, GLuint texture);
-	void draw_transparent(GLuint program, GLuint texture, glm::vec3 player_pos);
+	void update();
+	void draw(std::string programKey, std::string textureKey);
 	void delete_buffers();
 
 	//virtual GLuint get_program(Attrib *attrib);

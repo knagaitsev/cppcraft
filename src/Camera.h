@@ -9,19 +9,26 @@
 
 #include <glm/glm.hpp>
 
+#include "Shaders/ShaderManager.h"
+
 class Camera {
 private:
+	ShaderManager *shaderManager;
 	GLFWwindow *window;
 	GLint uniView;
+
+	glm::mat4 proj;
 
 public:
 	glm::vec3 position;
 	glm::vec3 center;
 	glm::vec3 up;
 
-	Camera(GLFWwindow *window, Attrib *attrib, float fovy, float width, float height, float zNear, float zFar);
+	Camera(ShaderManager *shaderManager, GLFWwindow *window, float fovy, float width, float height, float zNear, float zFar);
 
-	void update(Attrib *attrib);
+	void attach_programs();
+
+	void update();
 };
 
 #endif
