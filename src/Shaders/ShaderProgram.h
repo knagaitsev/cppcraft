@@ -9,19 +9,16 @@
 
 class ShaderProgram {
 private:
-	GLuint program;
-	GLint position;
-	GLint tex;
 protected:
-	
+	GLuint program;
 public:
 	ShaderProgram();
 	ShaderProgram(const char *vertex_path, const char *fragment_path);
-	void bind();
-	void unbind();
+	virtual void bind() = 0;
+	virtual void unbind() = 0;
 
-	GLint get_proj_location();
-	GLint get_view_location();
+	virtual GLint get_proj_location() = 0;
+	virtual GLint get_view_location() = 0;
 };
 
 #endif

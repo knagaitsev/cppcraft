@@ -71,20 +71,20 @@ void Inventory::update() {
 
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
-	hand_block.draw("shader2", "blocks");
+	hand_block.draw("perspective_shader", "blocks");
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	lower_inventory.draw("shader3", "lower_inventory");
+	lower_inventory.draw("static_shader", "lower_inventory");
 
-	lower_inventory_selectors[current_slot].draw("shader3", "lower_inventory_selector");
+	lower_inventory_selectors[current_slot].draw("static_shader", "lower_inventory_selector");
 
 	glDisable(GL_BLEND);
 
-	crosshair.draw("shader3", "crosshair");
+	crosshair.draw("static_shader", "crosshair");
 
 	for (InventoryRenderer r : blocks) {
-		r.draw("shader3", "blocks");
+		r.draw("static_shader", "blocks");
 	}
 
 	glEnable(GL_CULL_FACE);

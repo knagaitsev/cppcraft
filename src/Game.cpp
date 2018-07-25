@@ -104,7 +104,7 @@ void Game::initialize() {
 	shaderManager = new ShaderManager();
 	textureManager = new TextureManager();
 
-	camera = new Camera(shaderManager, window, 60.0f, 1280.0f, 720.0f, .1f, 700.0f);
+	camera = new Camera(window, 60.0f, 1280.0f, 720.0f, .1f, 700.0f);
 }
 
 void Game::start() {

@@ -15,7 +15,7 @@
 
 using glm::vec3;
 
-Camera::Camera(ShaderManager *shaderManager, GLFWwindow *window, float fovy, float width, float height, float zNear, float zFar): window(window), shaderManager(shaderManager) {
+Camera::Camera(GLFWwindow *window, float fovy, float width, float height, float zNear, float zFar): window(window) {
 
 	float aspectRatio = width / height;
 	proj = glm::perspective(glm::radians(fovy), aspectRatio, zNear, zFar);
@@ -26,17 +26,17 @@ Camera::Camera(ShaderManager *shaderManager, GLFWwindow *window, float fovy, flo
 }
 
 void Camera::update() {
-	glm::mat4 view = glm::lookAt(
+	view = glm::lookAt(
 		position,
 		center,
 		up
 	);
-
-	glUniformMatrix4fv(shaderManager->get("shader1").get_view_location(), 1, GL_FALSE, glm::value_ptr(view));
 }
 
-void Camera::attach_programs() {
-	glUniformMatrix4fv(shaderManager->get("shader1").get_proj_location(), 1, GL_FALSE, glm::value_ptr(proj));
+void Camera::apply_projection(GLint location) {
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(proj));
+}
 
-	glUniformMatrix4fv(shaderManager->get("shader2").get_proj_location(), 1, GL_FALSE, glm::value_ptr(proj));
+void Camera::update_view(GLint location) {
+	glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(view));
 }

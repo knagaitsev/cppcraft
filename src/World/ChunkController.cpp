@@ -45,7 +45,7 @@ void ChunkController::draw() {
 		chunk_direc.z = 0;
 
 		if (dist < render_distance/* && (camera->center.z < camera->position.z || (glm::angle(normalize(chunk_direc), normalize(look_direc))) <= radians(cut_angle / 2.0f))*/) {
-			c->renderer.draw("shader1", "blocks");
+			c->renderer.draw("block_shader", "blocks");
 			float dist = glm::distance2(glm::vec3(chunks[i]->center), camera->position);
 			DrawnChunk dc = { i, dist };
 			drawn_indices.push_back(dc);
@@ -59,7 +59,7 @@ void ChunkController::draw() {
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for (DrawnChunk c : drawn_indices) {
-		chunks[c.index]->water_renderer.draw_transparent("shader1", "blocks", camera->position);
+		chunks[c.index]->water_renderer.draw_transparent("block_shader", "blocks", camera->position);
 	}
 	glDisable(GL_BLEND);
 }

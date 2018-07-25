@@ -57,13 +57,13 @@ void IRenderer::unbind_buffer() {
 }
 
 void IRenderer::bind_program(std::string key) {
-	ShaderProgram program = Game::shaderManager->get(key);
-	program.bind();
+	ShaderProgram* program = Game::shaderManager->get(key);
+	program->bind();
 }
 
 void IRenderer::unbind_program(std::string key) {
-	ShaderProgram program = Game::shaderManager->get(key);
-	program.unbind();
+	ShaderProgram* program = Game::shaderManager->get(key);
+	program->unbind();
 }
 
 void IRenderer::draw(std::string programKey, std::string textureKey) {

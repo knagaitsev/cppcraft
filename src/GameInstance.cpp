@@ -1,11 +1,16 @@
 #include "GameInstance.h"
 
+#include "Shaders/BlockShader.h"
+#include "Shaders/StaticShader.h"
 
 GameInstance::GameInstance() {
 
-	Game::shaderManager->add("shader1", "../../../shaders/vertex1.glsl", "../../../shaders/fragment1.glsl");
-	Game::shaderManager->add("shader2", "../../../shaders/vertex2.glsl", "../../../shaders/fragment1.glsl");
-	Game::shaderManager->add("shader3", "../../../shaders/vertex3.glsl", "../../../shaders/fragment1.glsl");
+	ShaderProgram* block_shader = new BlockShader("../../../shaders/vertex1.glsl", "../../../shaders/fragment1.glsl");
+	Game::shaderManager->add("block_shader", block_shader);
+	ShaderProgram* perspective_shader = new StaticShader("../../../shaders/vertex2.glsl", "../../../shaders/fragment1.glsl");
+	Game::shaderManager->add("perspective_shader", perspective_shader);
+	ShaderProgram* static_shader = new StaticShader("../../../shaders/vertex3.glsl", "../../../shaders/fragment1.glsl");
+	Game::shaderManager->add("static_shader", static_shader);
 
 	Game::textureManager->add("blocks", "../../../asset/gimp/blocks4.png");
 	Game::textureManager->add("sample", "../../../asset/sample.png");
@@ -13,7 +18,8 @@ GameInstance::GameInstance() {
 	Game::textureManager->add("lower_inventory", "../../../asset/gimp/lower_inventory.png");
 	Game::textureManager->add("lower_inventory_selector", "../../../asset/gimp/lower_inventory_selector.png");
 
-	camera->attach_programs();
+	camera->apply_projection(Game::shaderManager->get("block_shader")->get_proj_location());
+	camera->apply_projection(Game::shaderManager->get("perspective_shader")->get_proj_location());
 
 	chunkController = new ChunkController(camera);
 
@@ -23,6 +29,8 @@ GameInstance::GameInstance() {
 }
 
 void GameInstance::update() {
+
+	camera->update_view(Game::shaderManager->get("block_shader")->get_view_location());
 
 	//drawing
 	//glDrawElements(GL_TRIANGLES, NELEMS(elements), GL_UNSIGNED_INT, 0);
