@@ -11,6 +11,7 @@ class BlockShader : public StaticShader {
 private:
 	GLint position;
 	GLint tex;
+	GLint normal;
 protected:
 
 public:

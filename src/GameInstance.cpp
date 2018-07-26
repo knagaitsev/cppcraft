@@ -5,11 +5,11 @@
 
 GameInstance::GameInstance() {
 
-	ShaderProgram* block_shader = new BlockShader("../../../shaders/vertex1.glsl", "../../../shaders/fragment1.glsl");
+	ShaderProgram* block_shader = new BlockShader("../../../shaders/BlockVertex.glsl", "../../../shaders/BlockFragment.glsl");
 	Game::shaderManager->add("block_shader", block_shader);
-	ShaderProgram* perspective_shader = new StaticShader("../../../shaders/vertex2.glsl", "../../../shaders/fragment1.glsl");
+	ShaderProgram* perspective_shader = new StaticShader("../../../shaders/ProjectedVertex.glsl", "../../../shaders/StaticFragment.glsl");
 	Game::shaderManager->add("perspective_shader", perspective_shader);
-	ShaderProgram* static_shader = new StaticShader("../../../shaders/vertex3.glsl", "../../../shaders/fragment1.glsl");
+	ShaderProgram* static_shader = new StaticShader("../../../shaders/StaticVertex.glsl", "../../../shaders/StaticFragment.glsl");
 	Game::shaderManager->add("static_shader", static_shader);
 
 	Game::textureManager->add("blocks", "../../../asset/gimp/blocks4.png");

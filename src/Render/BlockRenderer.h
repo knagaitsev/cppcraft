@@ -16,7 +16,9 @@
 class BlockRenderer : public IRenderer {
 private:
 	bool is_water;
-
+	glm::vec3 get_normal(int index);
+protected:
+	const int vertex_size = 8;
 public:
 	BlockRenderer(bool is_water);
 	void gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE], int offsetX, int offsetY, int offsetZ, Block(*neighbor_blocks[6])[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE]);

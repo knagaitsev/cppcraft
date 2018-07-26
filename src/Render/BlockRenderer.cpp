@@ -162,8 +162,10 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 						2, 3, 0
 					};
 
+					int current_vertex_size = 5;
+
 					for (int i = 0; i < NELEMS(verticesArray); i++) {
-						if (i % 5 == 2) {
+						if (i % current_vertex_size == 2) {
 							if (is_water && neighbor_types[4] != WATER_BLOCK && verticesArray[i] == .5f) {
 								verticesArray[i] -= .15f;
 							}
@@ -171,8 +173,9 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 					}
 
 					for (int i = 0; i < NELEMS(verticesArray); i++) {
-						if (fill_faces[i / 20]) {
-							switch (i % 5) {
+						int face_index = i / (current_vertex_size * 4);
+						if (fill_faces[face_index]) {
+							switch (i % current_vertex_size) {
 							case 0:
 								verticesArray[i] += .5f + x + offsetX;
 								break;
@@ -184,6 +187,13 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 								break;
 							}
 							vertices.push_back(verticesArray[i]);
+
+							if (i % current_vertex_size == current_vertex_size - 1) {
+								vec3 normal = get_normal(face_index);
+								for (int j = 0; j < 3; j++) {
+									vertices.push_back(normal[j]);
+								}
+							}
 						}
 					}
 
@@ -261,4 +271,27 @@ void BlockRenderer::draw_transparent(std::string programKey, std::string texture
 	}
 
 	end(programKey);
+}
+
+glm::vec3 BlockRenderer::get_normal(int index) {
+	if (index == 0) {
+		return vec3(1, 0, 0);
+	}
+	else if (index == 1) {
+		return vec3(-1, 0, 0);
+	}
+	else if (index == 2) {
+		return vec3(0, 1, 0);
+	}
+	else if (index == 3) {
+		return vec3(0, -1, 0);
+	}
+	else if (index == 4) {
+		return vec3(0, 0, 1);
+	}
+	else if (index == 5) {
+		return vec3(0, 0, -1);
+	}
+
+	return vec3(1, 0, 0);
 }
