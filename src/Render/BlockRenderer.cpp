@@ -26,6 +26,62 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 
 	int elemCount = 0;
 
+	GLfloat verticesArray[] = {
+
+		//  Position    Texcoords
+		//x    y     z
+
+		//front-back
+		0.5f,  0.5f, 0.5f,
+		0.5f,  -0.5f, 0.5f,
+		0.5f, -0.5f, -0.5f,
+		0.5f, 0.5f, -0.5f,
+
+		-0.5f,  -0.5f, 0.5f,
+		-0.5f,  0.5f, 0.5f,
+		-0.5f, 0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
+
+		//left-right
+		-0.5f,  0.5f, 0.5f,
+		0.5f,  0.5f, 0.5f,
+		0.5f, 0.5f, -0.5f,
+		-0.5f, 0.5f, -0.5f,
+
+		0.5f,  -0.5f, 0.5f,
+		-0.5f,  -0.5f, 0.5f,
+		-0.5f, -0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f,
+
+		//top-bottom
+		-0.5f,  -0.5f, 0.5f,
+		0.5f,  -0.5f, 0.5f,
+		0.5f,  0.5f, 0.5f,
+		-0.5f,  0.5f, 0.5f,
+
+		-0.5f, 0.5f, -0.5f,
+		0.5f, 0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f//, tex[0 + 20], tex[3 + 20]
+	};
+
+	GLuint elementArray[] = {
+		0, 1, 2,
+		2, 3, 0
+	};
+
+	GLuint reversedElementArray[] = {
+		1, 0, 2,
+		3, 2, 0
+	};
+
+	int texIndices[] = {
+		0, 2,
+		1, 2,
+		1, 3,
+		0, 3
+	};
+
 	int size = CHUNK_SIZE;
 	for (int x = 0; x < size; x++) {
 		for (int y = 0; y < size; y++) {
@@ -118,61 +174,61 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 						tex[i * 4 + 3] = y + image_size;
 					}
 
-					GLfloat verticesArray[] = {
+					//int current_vertex_size = 5;
 
-						//  Position    Texcoords
-						//x    y     z
+					//wasteful loop, only should be done if its water
+					/*if (is_water) {
+						for (int i = 0; i < NELEMS(verticesArray); i++) {
+							if (i % current_vertex_size == 2) {
+								if (is_water && neighbor_types[4] != WATER_BLOCK && verticesArray[i] == .5f) {
+									verticesArray[i] -= .15f;
+								}
+							}
+						}
+					}*/
 
-						//front-back
-						0.5f,  0.5f, 0.5f, tex[0], tex[2], // Top-right
-						0.5f,  -0.5f, 0.5f, tex[1], tex[2], // Top-left
-						0.5f, -0.5f, -0.5f, tex[1], tex[3],  // Bottom-left
-						0.5f, 0.5f, -0.5f, tex[0], tex[3], // Bottom-right
+					int vertices_per_face = 4;
+					int elems_per_vertex = 3;
+					int full_face_count = vertices_per_face * elems_per_vertex;
+					for (int i = 0; i < NELEMS(fill_faces); i++) {
+						if (fill_faces[i]) {
+							int current_vertex = 0;
+							for (int j = full_face_count * i; j < full_face_count * (i+1); j++) {
+								GLfloat elem = verticesArray[j];
+								switch (j % 3) {
+								case 0:
+									elem += .5f + x + offsetX;
+									break;
+								case 1:
+									elem += .5f + y + offsetY;
+									break;
+								case 2:
+									if (is_water && neighbor_types[4] != WATER_BLOCK && elem == .5f) {
+										elem -= .15f;
+									}
+									elem += .5f + z + offsetZ;
+									break;
+								}
+								vertices.push_back(elem);
 
-						-0.5f,  -0.5f, 0.5f, tex[0 + 4], tex[2 + 4], // Top-left
-						-0.5f,  0.5f, 0.5f, tex[1 + 4], tex[2 + 4], // Top-right
-						-0.5f, 0.5f, -0.5f, tex[1 + 4], tex[3 + 4], // Bottom-right
-						-0.5f, -0.5f, -0.5f, tex[0 + 4], tex[3 + 4],  // Bottom-left
+								if (j % 3 == 3 - 1) {
+									int texOffset = (i * vertices_per_face);
+									vertices.push_back(tex[texIndices[current_vertex * 2] + texOffset]);
+									vertices.push_back(tex[texIndices[current_vertex * 2 + 1] + texOffset]);
 
-						//left-right
-						-0.5f,  0.5f, 0.5f, tex[0 + 8], tex[2 + 8], // Top-right
-						0.5f,  0.5f, 0.5f, tex[1 + 8], tex[2 + 8], // Top-right
-						0.5f, 0.5f, -0.5f, tex[1 + 8], tex[3 + 8], // Bottom-right
-						-0.5f, 0.5f, -0.5f, tex[0 + 8], tex[3 + 8], // Bottom-right
+									vec3 normal = get_normal(i);
+									for (int k = 0; k < 3; k++) {
+										vertices.push_back(normal[k]);
+									}
 
-						0.5f,  -0.5f, 0.5f, tex[0 + 12], tex[2 + 12], // Top-left
-						-0.5f,  -0.5f, 0.5f, tex[1 + 12], tex[2 + 12], // Top-left
-						-0.5f, -0.5f, -0.5f, tex[1 + 12], tex[3 + 12],  // Bottom-left
-						0.5f, -0.5f, -0.5f, tex[0 + 12], tex[3 + 12],  // Bottom-left
-
-						//top-bottom
-						- 0.5f,  -0.5f, 0.5f, tex[0 + 16], tex[2 + 16], // Top-left
-						0.5f,  -0.5f, 0.5f, tex[1 + 16], tex[2 + 16], // Top-left
-						0.5f,  0.5f, 0.5f, tex[1 + 16], tex[3 + 16], // Top-right
-						-0.5f,  0.5f, 0.5f, tex[0 + 16], tex[3 + 16], // Top-right
-
-						-0.5f, 0.5f, -0.5f, tex[0 + 20], tex[2 + 20], // Bottom-right
-						0.5f, 0.5f, -0.5f, tex[1 + 20], tex[2 + 20], // Bottom-right
-						0.5f, -0.5f, -0.5f, tex[1 + 20], tex[3 + 20],  // Bottom-left
-						-0.5f, -0.5f, -0.5f, tex[0 + 20], tex[3 + 20]  // Bottom-left
-					};
-
-					GLuint elementArray[] = {
-						0, 1, 2,
-						2, 3, 0
-					};
-
-					int current_vertex_size = 5;
-
-					for (int i = 0; i < NELEMS(verticesArray); i++) {
-						if (i % current_vertex_size == 2) {
-							if (is_water && neighbor_types[4] != WATER_BLOCK && verticesArray[i] == .5f) {
-								verticesArray[i] -= .15f;
+									current_vertex++;
+								}
 							}
 						}
 					}
 
-					for (int i = 0; i < NELEMS(verticesArray); i++) {
+					//wasteful loop, should only look at elements that are filled faces
+					/*for (int i = 0; i < NELEMS(verticesArray); i++) {
 						int face_index = i / (current_vertex_size * 4);
 						if (fill_faces[face_index]) {
 							switch (i % current_vertex_size) {
@@ -195,37 +251,48 @@ void BlockRenderer::gen_buffer(Block (*blocks)[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZ
 								}
 							}
 						}
-					}
+					}*/
 
+					//explain how this works
 					for (int i = 0; i < NELEMS(fill_faces); i++) {
 						if (fill_faces[i]) {
 							for (int reverse = 0; reverse < 2; reverse++) {
+								//if the element is being reversed, make the element array
+								//counter clockwise on the second go
 								if (reverse == 1 && (block.type == WATER_BLOCK || (BLOCK_FACES[block.type][6] == 1 && !neighbors_have_transparency[i]))) {
-									int temp = elementArray[0];
+									/*int temp = elementArray[0];
 									elementArray[0] = elementArray[1];
 									elementArray[1] = temp;
 									temp = elementArray[3];
 									elementArray[3] = elementArray[4];
-									elementArray[4] = temp;
+									elementArray[4] = temp;*/
 								}
 								else if (reverse != 0) {
+									//if the element is not being reversed, skip the second go
 									continue;
 								}
 
+								//add the current offset of the element array
 								for (int j = 0; j < NELEMS(elementArray); j++) {
-									elementArray[j] += elemCount;
-									elements.push_back(elementArray[j]);
-									elementArray[j] -= elemCount;
+									//elementArray[j] += elemCount;
+									if (reverse == 0) {
+										elements.push_back(elementArray[j] + elemCount);
+									}
+									else if (reverse == 1) {
+										elements.push_back(reversedElementArray[j] + elemCount);
+									}
+									//elementArray[j] -= elemCount;
 								}
 
-								if (reverse == 1) {
+								//if the element was reversed, switch it back so it doesnt cause problems
+								/*if (reverse == 1) {
 									int temp = elementArray[0];
 									elementArray[0] = elementArray[1];
 									elementArray[1] = temp;
 									temp = elementArray[3];
 									elementArray[3] = elementArray[4];
 									elementArray[4] = temp;
-								}
+								}*/
 							}
 
 							elemCount += 4;

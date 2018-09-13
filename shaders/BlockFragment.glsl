@@ -10,9 +10,9 @@ void main()
         discard;
     }
 
-	vec3 light = normalize(vec3(-1.0, -1.0, -1.0));
+	vec3 light = normalize(vec3(-1.0, -5.0, -3.0));
 	float nDot = dot(Normal, light);
-	float brightness = max(nDot, 0.0) * 0.5 + 0.5;
+	float brightness = max(nDot, 0.0) * 0.3 + 0.7;
 	if (color.a < 1.0) {
 		brightness = 1.0;
 	}
