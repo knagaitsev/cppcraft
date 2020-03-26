@@ -22,7 +22,7 @@ protected:
 	static TextureManager *textureManager;
 
 public:
-	static void Game::initialize();
+	static void initialize();
 	virtual void update() = 0;
 	void start();
 };

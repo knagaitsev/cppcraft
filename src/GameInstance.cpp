@@ -5,18 +5,18 @@
 
 GameInstance::GameInstance() {
 
-	ShaderProgram* block_shader = new BlockShader("../../../shaders/BlockVertex.glsl", "../../../shaders/BlockFragment.glsl");
+	ShaderProgram* block_shader = new BlockShader("../shaders/BlockVertex.glsl", "../shaders/BlockFragment.glsl");
 	Game::shaderManager->add("block_shader", block_shader);
-	ShaderProgram* perspective_shader = new StaticShader("../../../shaders/ProjectedVertex.glsl", "../../../shaders/StaticFragment.glsl");
+	ShaderProgram* perspective_shader = new StaticShader("../shaders/ProjectedVertex.glsl", "../shaders/StaticFragment.glsl");
 	Game::shaderManager->add("perspective_shader", perspective_shader);
-	ShaderProgram* static_shader = new StaticShader("../../../shaders/StaticVertex.glsl", "../../../shaders/StaticFragment.glsl");
+	ShaderProgram* static_shader = new StaticShader("../shaders/StaticVertex.glsl", "../shaders/StaticFragment.glsl");
 	Game::shaderManager->add("static_shader", static_shader);
 
-	Game::textureManager->add("blocks", "../../../asset/gimp/blocks4.png");
-	Game::textureManager->add("sample", "../../../asset/sample.png");
-	Game::textureManager->add("crosshair", "../../../asset/gimp/crosshair.png");
-	Game::textureManager->add("lower_inventory", "../../../asset/gimp/lower_inventory.png");
-	Game::textureManager->add("lower_inventory_selector", "../../../asset/gimp/lower_inventory_selector.png");
+	Game::textureManager->add("blocks", "../asset/gimp/blocks4.png");
+	Game::textureManager->add("sample", "../asset/sample.png");
+	Game::textureManager->add("crosshair", "../asset/gimp/crosshair.png");
+	Game::textureManager->add("lower_inventory", "../asset/gimp/lower_inventory.png");
+	Game::textureManager->add("lower_inventory_selector", "../asset/gimp/lower_inventory_selector.png");
 
 	camera->apply_projection(Game::shaderManager->get("block_shader")->get_proj_location());
 	camera->apply_projection(Game::shaderManager->get("perspective_shader")->get_proj_location());

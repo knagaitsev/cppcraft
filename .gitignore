@@ -3,3 +3,4 @@ build/
 CMakeBuilds/
 .vscode/
 asset/gimp/blocks.xcf
+worlds/

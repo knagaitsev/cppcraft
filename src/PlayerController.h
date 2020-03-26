@@ -29,7 +29,7 @@ private:
 
 	bool cursor_disabled;
 
-	std::chrono::time_point<std::chrono::steady_clock> t_start;
+	std::chrono::time_point<std::chrono::high_resolution_clock> t_start;
 	const float speed = 10.0f;
 
 	const glm::vec3 player_dimensions = glm::vec3(.5f, .5f, 1.99f);

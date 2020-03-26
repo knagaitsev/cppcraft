@@ -10,7 +10,7 @@
 
 #include "World/ChunkController.h"
 #include "PlayerController.h"
-#include "World\World.h"
+#include "World/World.h"
 
 class GameInstance: public Game {
 private:

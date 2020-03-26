@@ -36,7 +36,7 @@ World::World(ChunkController *chunkController, PlayerController *controller): ch
 
 	//chunkController->add_block(GRASS_BLOCK, 0, 0, 0);
 
-	filename = "../../../data/world3.txt";
+	filename = "../worlds/world1.txt";
 
 	chunkController->load_data(filename);
 	chunkController->gen_changed_buffers();

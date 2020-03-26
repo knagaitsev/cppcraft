@@ -1,5 +1,5 @@
-#include "Game.h";
-#include "GameInstance.h";
+#include "Game.h"
+#include "GameInstance.h"
 
 /*
 chunk class: 16x16x16 chunks with structs of blocks that contain block type (int)

@@ -15,8 +15,8 @@ add_executable(
 	${PROCTREE_SOURCE_FILES}
 	deps/lodepng/lodepng.cpp)
 	
-# add_subdirectory(deps/glfw)
-# include_directories(deps/glfw/include)
+add_subdirectory(deps/glfw)
+include_directories(deps/glfw/include)
 
 include_directories(deps/glm)
 
@@ -28,6 +28,19 @@ include_directories(deps/jsoncpp/include)
 
 include_directories(deps/libnoise/include)
 
+FIND_LIBRARY(LIBNOISE_LIBRARIES
+  NAMES libnoise noise libnoiseutils noiseutils
+  PATHS
+    deps/libnoise/bin    
+  PATH_SUFFIXES lib64 lib so
+)
+
 find_package(OpenGL REQUIRED)
 
-include_directories(deps/glew/include)
+find_package(GLEW REQUIRED)
+if (GLEW_FOUND)
+    include_directories(${GLEW_INCLUDE_DIRS})
+    link_libraries(${GLEW_LIBRARIES})
+endif()
+
+target_link_libraries(cppcraft ${GLEW_LIBRARY} ${OPENGL_LIBRARY} glfw ${GLFW_LIBRARIES} ${LIBNOISE_LIBRARIES})
