@@ -42,5 +42,5 @@ Version 2.0 Video Special - Procedural Tree Generation:
 Dependencies on linux:
 
 ```
-sudo apt-get install libglew-dev
+sudo apt-get install libglew-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libnoise-dev
 ```
