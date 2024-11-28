@@ -156,8 +156,8 @@ int main() {
 	do {
 		glClear(GL_COLOR_BUFFER_BIT);
 		glClear(GL_DEPTH_BUFFER_BIT);
-
-		//update camera
+		glfwPollEvents();
+		controller.update(&attrib);
 		camera.update(&attrib);
 
 		//drawing
@@ -167,10 +167,10 @@ int main() {
 		world.update();
 
 		//update controller
-		controller.update(&attrib);
+		
 
 		glfwSwapBuffers(window);
-		glfwPollEvents();
+		
 
 	} while (glfwWindowShouldClose(window) == 0);
 	
